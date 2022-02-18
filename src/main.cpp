@@ -1,7 +1,7 @@
 ﻿// GeneralizedMap.cpp: 定义应用程序的入口点。
 //
 
-#include "GeneralizedMap.h"
+#include "Point.h"
 
 using namespace std;
 
