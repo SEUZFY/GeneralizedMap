@@ -19,7 +19,7 @@ public:
     Point() : x(0), y(0), z(0) {}
 
     // constructor with x,y,z arguments;
-    Point(const float& x, const float& y, const float& z) : x(x), y(y), z(z) {}
+    Point(float x, float y, float z) : x(x), y(y), z(z) {}
 
     // non-const coordinate accessor with `[]`
     float& operator[](int coordinate) {

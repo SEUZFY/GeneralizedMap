@@ -34,9 +34,23 @@ int main(int argc, char* argv[])
     }
 
     // test the read
-    for (auto& v : vertices)v.print();
+    // for (auto& v : vertices)v.print();
 
-    // test new branch
+    // test Dart
+    //Dart d;
+    //Dart d1;
+
+    //d1.id() = 2;
+    //d.set_incident_cell(0, 25);
+    //d.set_involution_to_dart(0, &d1); // a0 -> d1
+    //d.print_involution(0);
+
+    // test vertex
+    // Vertex v(1,2,3);
+    // v.print();
+    // std::cout << v.id();
+    
+    
 
 
     // ## Construct generalised map using the structures from Gmap.h ##
