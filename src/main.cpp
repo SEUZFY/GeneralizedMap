@@ -22,16 +22,21 @@ int main(int argc, char* argv[])
     * use index as the id of faces
     * ie:
     * face_list[i]: the i-th face
+    * 
+    * Normal vector:
+    * the default order of vertex is: CCW(normal vector points to outside)
     */
     std::vector<std::vector<int>> face_list; 
-
-    ReadOBJ::readobj(DATA_PATH, "/cube.obj", &vertices, &face_list);
 
     /*
     * to store all the edge indexes
     * use index as the id of edge
     */
-    std::vector<std::vector<int>> edge_list; 
+    std::vector<std::vector<int>> edge_list;
+
+    ReadOBJ::readobj(DATA_PATH, "/cube.obj", &vertices, &face_list);
+
+    
 
     // test the read
 

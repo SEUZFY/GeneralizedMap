@@ -143,6 +143,14 @@ public:
 
 class ReadOBJ {
 public:
+    /*
+    * function: read obj file and store vertices and face indexes.
+    * @parameter:
+    * param_filepath: file path
+    * param_filename: file name
+    * vptr: a vector pointer pointing to a std::vector<Vertec> array.
+    * fptr: a vector pointer pointing to a std::vector<std::vector<int>> array.s
+    */
     static void readobj(
         const std::string& param_filepath,
         const std::string& param_filename,
@@ -201,4 +209,9 @@ public:
         } // end while: each line in the file
 
     }
+
+    /*
+    * function: construct edge_list
+    */
+
 };
