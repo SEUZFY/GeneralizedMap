@@ -38,8 +38,13 @@ int main(int argc, char* argv[])
     */
     std::vector<std::vector<int>> edge_list;
 
+    /*
+    * face_list and edge_list are used to map the vertices, indicating
+    * to find the vertex in the vertices according to face id or edge id
+    */
+
     ReadOBJ::readobj(DATA_PATH, "/cube.obj", &vertices, &face_list);
-    ReadOBJ::constructEdgeList(&face_list, &edge_list);
+    BuildGmap::buildEdgeList(&face_list, &edge_list);
     
 
     // test the read
@@ -63,6 +68,13 @@ int main(int argc, char* argv[])
     for (auto& e : edge_list) {
         std::cout << e[0] << " " << e[1] << '\n';
     }
+
+    // test findEdge()
+    for (auto& eid : BuildGmap::facefindEdge(&face_list, &edge_list, 2)) {
+        std::cout << eid << " ";
+    }
+
+    
 
     // test Dart
     //Dart d;

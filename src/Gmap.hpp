@@ -47,7 +47,7 @@ Then you could create and link Darts like:
 
 class Dart {
 private:  
-    std::size_t m_id; // dart id
+    int m_id; // dart id
     Dart* involution_pointers[4];  // involutions: a0, a1, a2, a3
     std::size_t cell_dimensions[4]; // cells: 0-dimensional, 1-dimensional, 2-dimensional, 3-dimensional
 
@@ -59,7 +59,7 @@ public:
 
     // settings
     // set dart id
-    std::size_t& id() { return m_id; }
+    int& id() { return m_id; }
 
     // set involutions
     void set_involution_to_dart(int dimension, Dart* dptr) {
@@ -91,7 +91,7 @@ public:
 
 class Vertex : public Point{
 private:
-    std::size_t m_id;
+    int m_id;
 
     // a dart incident to this Vertex:
     // dart id? or a pointer?
@@ -104,7 +104,7 @@ public:
     Vertex(float x, float y, float z) : Point(x, y, z),m_id(0){}
 
     // access id
-    std::size_t& id() { return m_id; }
+    int& id() { return m_id; }
 
 
     virtual ~Vertex() = default;
@@ -210,6 +210,11 @@ public:
 
     }
 
+};
+
+
+class BuildGmap {
+public:
 
     /*
     * function: to judge whether the given elements are repeate
@@ -227,35 +232,27 @@ public:
                 ((*edge)[1] == e[0] && (*edge)[0] == e[1])
                 ) {
                 return true;
-            }     
+            }
         }
         return false;
     }
 
 
     /*
-    * function: construct edge_list based on face_list
+    * function: build edge_list based on face_list
     * @parameter:
     * fptr: a vector pointer pointing to a std::vector<std::vector<int>> array, face list
     * eptr: a vector pointer pointing to a std::vector<std::vector<int>> array. edge list
     */
-    static void constructEdgeList(
+    static void buildEdgeList(
         std::vector<std::vector<int>>* fptr,
-        std::vector<std::vector<int>>* eptr) 
+        std::vector<std::vector<int>>* eptr)
     {
-        // trace the current element in the edge list
-        // used for repeate check
-        // once eptr->emplace_back, ++edge_trace
-        // NB: after increase operation, when accessing eptr element:
-        // eptr[edge_trace-1]
-        // cuz vector is 0-based indexes
-        // int edge_trace(0); 
-
         for (auto& f : *fptr) { // each face: contains multiple vertex indexes, NB: 1-based indexes
-            
-            if (!f.empty()) {           
+
+            if (!f.empty()) {
                 int N = (int)f.size(); // DO NOT use f.size() directly, for f.size()-1 may lead to index errors
-                
+
                 std::vector<int> edge_index; // initialize: add the first edge into the edge list
                 edge_index.emplace_back(f[0]);
                 edge_index.emplace_back(f[1]);
@@ -268,7 +265,7 @@ public:
                     edge_index[1] = f[i + 1];
                     if (repeateEdgeCheck(&edge_index, eptr))continue;
                     else eptr->emplace_back(edge_index);
-        
+
                 } // end for
 
                 // make edge: the last id in a face-index, and the first id in a face-index
@@ -286,4 +283,73 @@ public:
 
     }// end of function
 
+
+    /*
+    * function: build face-edge maps
+    * ie:
+    * face-edge[0]:
+    * all the edges belonging to face 0
+    * it should contains multiple integers, indicating the edge id in the edge list
+    * 
+    * @parameter:
+    * fptr: a vector pointer pointing to a std::vector<std::vector<int>> array, face list
+    * eptr: a vector pointer pointing to a std::vector<std::vector<int>> array, edge list
+    * faceid: the id of a certain face in the face list
+    * 
+    * @return:
+    * a std::vector<int> contains the edge indexes in the edge list
+    */
+    static std::vector<int> facefindEdge(
+        std::vector<std::vector<int>>* fptr,
+        std::vector<std::vector<int>>* eptr,
+        int faceid)
+    {
+        std::vector<int> result;              
+        if (faceid < 0 || faceid >= fptr->size())return result;
+
+
+        std::vector<int>* faceptr = &fptr->at(faceid); // face[faceid]: std::vector<int>
+        int numEdge = (int)eptr->size();
+        int numFace = (int)faceptr->size();
+
+
+        // each integer(vertex id) in one face
+        // traverse until the last-1 integer and the last integer
+        // ie face[0]: [1,2,3,4]
+        // look up: (1,2)(or(2,1)),(2,3)(or(3,2)),(3,4)(or(4,3)) in the edge list 
+        // to find (4,1), need to manually find the last integer and the first integer
+        for (int fid = 0; fid != numFace - 1; ++fid) {
+            int vertexA = faceptr->at(fid);
+            int vertexB = faceptr->at(fid + 1); // caution: may overflow
+
+            for (int eid = 0; eid != numEdge; ++eid) {
+                int vertex_a = (*eptr)[eid][0]; // each element in eptr array contains two integers
+                int vertex_b = (*eptr)[eid][1];
+
+                if ((vertexA == vertex_a && vertexB == vertex_b) ||
+                    (vertexA == vertex_b && vertexB == vertex_a))
+                {
+                    result.emplace_back(eid); // add the current edge index into the result
+                } // end if
+            } // end for: each edge in the edge list
+
+        } // end for: each integer in a face, not including the last and the first
+
+
+        // find the last integer and the first integer
+        int vertexA = faceptr->at(numFace - 1); // the last integer
+        int vertexB = faceptr->at(0); // the first integer
+        for (int eid = 0; eid != numEdge; ++eid) {
+            int vertex_a = (*eptr)[eid][0]; // each element in eptr array contains two integers
+            int vertex_b = (*eptr)[eid][1];
+
+            if ((vertexA == vertex_a && vertexB == vertex_b) ||
+                (vertexA == vertex_b && vertexB == vertex_a))
+            {
+                result.emplace_back(eid); // add the current edge index into the result
+            } // end if
+        } // end for: each edge in the edge list
+
+        return result;
+    }
 };
