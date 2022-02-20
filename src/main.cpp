@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 
     /*
     * to store all face indexes, each face contains multiple vertex id
-    * NB: OBJ uses 1-based indexes
+    * !!!NB!!!: OBJ uses 1-based indexes
     * Identify the vertex: 
     * face: element in vector face_list, type of face: std::vector<int>
     * id: element in vector face, type of id: integer
@@ -31,11 +31,15 @@ int main(int argc, char* argv[])
     /*
     * to store all the edge indexes
     * use index as the id of edge
+    * !!!NB!!!: OBJ uses 1-based indexes
+    * edge: element in vector edge_list, type of edge: std::vector<int>
+    * id: element in vector edge, type of id: integer
+    * vertices[id-1]: the corresponding vertex
     */
     std::vector<std::vector<int>> edge_list;
 
     ReadOBJ::readobj(DATA_PATH, "/cube.obj", &vertices, &face_list);
-
+    ReadOBJ::constructEdgeList(&face_list, &edge_list);
     
 
     // test the read
@@ -52,6 +56,12 @@ int main(int argc, char* argv[])
             std::cout << id;
         }
         std::cout << '\n';
+    }
+
+    // test edge list
+    std::cout <<"edge list size: " << edge_list.size() << '\n';
+    for (auto& e : edge_list) {
+        std::cout << e[0] << " " << e[1] << '\n';
     }
 
     // test Dart

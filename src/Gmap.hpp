@@ -148,8 +148,8 @@ public:
     * @parameter:
     * param_filepath: file path
     * param_filename: file name
-    * vptr: a vector pointer pointing to a std::vector<Vertec> array.
-    * fptr: a vector pointer pointing to a std::vector<std::vector<int>> array.s
+    * vptr: a vector pointer pointing to a std::vector<Vertex> array, vertex list
+    * fptr: a vector pointer pointing to a std::vector<std::vector<int>> array, face list
     */
     static void readobj(
         const std::string& param_filepath,
@@ -210,8 +210,80 @@ public:
 
     }
 
+
     /*
-    * function: construct edge_list
+    * function: to judge whether the given elements are repeate
+    * @parameter:
+    * edge: current edge, type: a std::vector<int> array, contains two elements
+    * eptr: edge list
     */
+    static bool repeateEdgeCheck(
+        std::vector<int>* edge,
+        std::vector<std::vector<int>>* eptr)
+    {
+        for (auto& e : *eptr) {
+            if (
+                ((*edge)[0] == e[0] && (*edge)[1] == e[1]) ||
+                ((*edge)[1] == e[0] && (*edge)[0] == e[1])
+                ) {
+                return true;
+            }     
+        }
+        return false;
+    }
+
+
+    /*
+    * function: construct edge_list based on face_list
+    * @parameter:
+    * fptr: a vector pointer pointing to a std::vector<std::vector<int>> array, face list
+    * eptr: a vector pointer pointing to a std::vector<std::vector<int>> array. edge list
+    */
+    static void constructEdgeList(
+        std::vector<std::vector<int>>* fptr,
+        std::vector<std::vector<int>>* eptr) 
+    {
+        // trace the current element in the edge list
+        // used for repeate check
+        // once eptr->emplace_back, ++edge_trace
+        // NB: after increase operation, when accessing eptr element:
+        // eptr[edge_trace-1]
+        // cuz vector is 0-based indexes
+        // int edge_trace(0); 
+
+        for (auto& f : *fptr) { // each face: contains multiple vertex indexes, NB: 1-based indexes
+            
+            if (!f.empty()) {           
+                int N = (int)f.size(); // DO NOT use f.size() directly, for f.size()-1 may lead to index errors
+                
+                std::vector<int> edge_index; // initialize: add the first edge into the edge list
+                edge_index.emplace_back(f[0]);
+                edge_index.emplace_back(f[1]);
+                if (repeateEdgeCheck(&edge_index, eptr)) {}
+                else eptr->emplace_back(edge_index);
+
+                for (int i = 1; i < N - 1; ++i) {
+                    // repeate check
+                    edge_index[0] = f[i];
+                    edge_index[1] = f[i + 1];
+                    if (repeateEdgeCheck(&edge_index, eptr))continue;
+                    else eptr->emplace_back(edge_index);
+        
+                } // end for
+
+                // make edge: the last id in a face-index, and the first id in a face-index
+                // ie: face-index:[1,2,3,4], add [1,4](same as [4,1]) to the edge list
+                // No need to execute repeate check first
+                // Cuz the first element in a face-index is different from the last element in a face-index
+                edge_index[0] = f[N - 1];
+                edge_index[1] = f[0]; // caution: may overflow
+                if (repeateEdgeCheck(&edge_index, eptr)) {}
+                else eptr->emplace_back(edge_index);
+
+            }// end if
+
+        }// end for
+
+    }// end of function
 
 };
