@@ -3,12 +3,35 @@
 
 int main(int argc, char* argv[])
 {
+    /*
+    * to store all the vertices
+    * index starts from: 0
+    * use index as the id of vertices
+    * ie:
+    * vertices[i]: the i-th vertex in the G-map
+    */
+    std::vector<Vertex> vertices; 
 
-    // Example how to read vertices from an obj file :
-    std::vector<Vertex> vertices;
-    std::vector<std::vector<int>> face_vertex_index;
-    ReadOBJ::readobj(DATA_PATH, "/cube.obj", &vertices, &face_vertex_index);
+    /*
+    * to store all face indexes, each face contains multiple vertex id
+    * NB: OBJ uses 1-based indexes
+    * Identify the vertex: 
+    * face: element in vector face_list, type of face: std::vector<int>
+    * id: element in vector face, type of id: integer
+    * vertices[id-1]: the corresponding vertex
+    * use index as the id of faces
+    * ie:
+    * face_list[i]: the i-th face
+    */
+    std::vector<std::vector<int>> face_list; 
 
+    ReadOBJ::readobj(DATA_PATH, "/cube.obj", &vertices, &face_list);
+
+    /*
+    * to store all the edge indexes
+    * use index as the id of edge
+    */
+    std::vector<std::vector<int>> edge_list; 
 
     // test the read
 
@@ -19,7 +42,7 @@ int main(int argc, char* argv[])
     }
 
     // test face-index
-    for (auto& f : face_vertex_index) {
+    for (auto& f : face_list) {
         for (auto& id : f) {
             std::cout << id;
         }

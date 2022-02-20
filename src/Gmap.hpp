@@ -109,8 +109,6 @@ public:
 
     virtual ~Vertex() = default;
     
-   
-
 };
 
 
