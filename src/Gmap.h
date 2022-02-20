@@ -1,7 +1,13 @@
 #pragma once
 
-#include "Point.h"
+// ---------------------------some standard libraries that are helpfull for reading/writing text files
 #include <memory>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <sstream>
+
+#include "Point.h"
 
 #define _NULL_ 9999;
 
@@ -134,4 +140,67 @@ public:
     // a dart incident to this Volume:
     // ...
 
+};
+
+
+class ReadOBJ {
+public:
+    static void readobj(
+        const std::string& param_filepath,
+        const std::string& param_filename,
+        std::vector<Vertex>* vptr,
+        std::vector<std::vector<int>>* fptr)
+    {
+        std::string filename = param_filepath + param_filename; // filename
+        std::string line;
+        std::ifstream file(filename);
+        if (!file.is_open()) { std::cerr << "file open failed! " << '\n'; }
+
+        while (std::getline(file, line)) { // for each line in the file
+            if (line.empty()) {
+                continue; // skip empty lines:
+            }
+
+            std::stringstream ss(line);
+            std::string field;
+            std::string::size_type sz; // NOT std::size_t, size of std::string
+
+            std::vector<float> coordinates; // store xyz coordinates in each line
+            std::vector<int> face_vertex; // store face-point index in each line
+            bool vertex_flag(false), face_flag(false); // to mark the current line: vertex or face, mark it as 'false' before process each line
+            
+            // for each element(field, type: string) in each line
+            while (std::getline(ss, field, ' ')) { 
+                
+                 // current line is vertex
+                if (field == "v") { 
+                    vertex_flag = true; 
+                    continue; // jump to next element in this line
+                }
+
+                // current line is face
+                else if (field == "f") { 
+                    face_flag = true; 
+                    continue; // jump to next element in this line
+                }
+
+                if (vertex_flag) {
+                    // process xyz coordinates
+                    coordinates.emplace_back(std::stof(field, &sz));
+                }
+                else if (face_flag) {
+                    // process f numbers
+                    face_vertex.emplace_back(std::stoi(field, &sz));
+                }
+            } // end while: process each element in one line
+
+            // process each point
+            if (!coordinates.empty() && coordinates.size() == 3) vptr->emplace_back(coordinates[0], coordinates[1], coordinates[2]); 
+            
+            // process each face
+            if (!face_vertex.empty())fptr->emplace_back(face_vertex);
+        
+        } // end while: each line in the file
+
+    }
 };
