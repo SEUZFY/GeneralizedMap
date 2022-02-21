@@ -29,7 +29,7 @@ public:
     }
 
     // const coordinate accessor with `[]`
-    float operator[](int coordinate) const {
+    const float& operator[](int coordinate) const {
         if (coordinate == 0) return x;
         else if (coordinate == 1) return y;
         else if (coordinate == 2) return z;
@@ -95,3 +95,5 @@ std::ostream& operator<<(std::ostream& os, const Point& p) {
     os << "(" << p[0] << ", " << p[1] << ", " << p[2] << ")";
     return os;
 }
+
+

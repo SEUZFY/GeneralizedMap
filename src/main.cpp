@@ -46,14 +46,10 @@ int main(int argc, char* argv[])
     ReadOBJ::readobj(DATA_PATH, "/cube.obj", &vertices, &face_list);
     BuildGmap::buildEdgeList(&face_list, &edge_list);
     
-
     // test the read
 
     // test vertices
-    for (auto& v : vertices) {
-        v.print();
-        std::cout << '\n';
-    }
+    std::cout << vertices;
 
     // test face-index
     for (auto& f : face_list) {
@@ -70,11 +66,19 @@ int main(int argc, char* argv[])
     }
 
     // test findEdge()
-    for (auto& eid : BuildGmap::facefindEdge(&face_list, &edge_list, 2)) {
+    std::vector<int> result;
+    BuildGmap::facefindEdge(face_list, edge_list, 2, result);
+    for (auto& eid : result) {
         std::cout << eid << " ";
     }
 
-    
+    // build dartlist
+    std::vector<Dart> dart_list;
+    BuildGmap::buildDartList(face_list, edge_list,dart_list);
+    Dart d;
+    std::cout << '\n';
+    std::cout << d.e;
+
 
     // test Dart
     //Dart d;

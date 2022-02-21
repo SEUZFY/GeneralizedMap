@@ -9,7 +9,7 @@
 
 #include "Point.h"
 
-#define _NULL_ 9999;
+constexpr auto _NULL_ = -9999;
 
 class Point;
 class Dart;
@@ -45,47 +45,66 @@ Then you could create and link Darts like:
 */
 
 
+//class Dart {
+//private:  
+//    int m_id; // dart id
+//    Dart* involution_pointers[4];  // involutions: a0, a1, a2, a3
+//    std::size_t cell_dimensions[4]; // cells: 0-dimensional, 1-dimensional, 2-dimensional, 3-dimensional
+//
+//public:
+//    Dart(): m_id(0){
+//        for (auto& pDart : involution_pointers)pDart = nullptr;
+//        for (auto c : cell_dimensions)c = 0;
+//    }
+//
+//    // settings
+//    // set dart id
+//    int& id() { return m_id; }
+//
+//    // set involutions
+//    void set_involution_to_dart(int dimension, Dart* dptr) {
+//        involution_pointers[dimension] = dptr; //dptr could be nullptr
+//    }
+//
+//    /*set incident cells :
+//    * cell_dimensions[0]: id of 0-cell (vertex id)
+//    * cell_dimensions[1]: id of 1-cell (edge id)
+//    * cell_dimensions[2]: id of 2-cell (face id)
+//    * cell_dimensions[3]: id of 3-cell (volume id) -- always null(_NULL_)*/
+//    void set_incident_cell(int dimension, std::size_t cell_id) {
+//        if (dimension >= 0 && dimension <= 3) {
+//            cell_dimensions[dimension] = cell_id;
+//        }
+//    }
+//
+//    // helpful for debugging
+//    void print_id()const { std::cout << m_id << '\n'; }
+//    void print_cell(int dimension) { std::cout << cell_dimensions[dimension] << '\n'; }
+//    void print_involution(int dimension) { std::cout << involution_pointers[dimension]->id() << '\n'; }
+//
+//
+//    // cells:
+//    // ...
+//
+//};
+
 class Dart {
-private:  
-    int m_id; // dart id
-    Dart* involution_pointers[4];  // involutions: a0, a1, a2, a3
-    std::size_t cell_dimensions[4]; // cells: 0-dimensional, 1-dimensional, 2-dimensional, 3-dimensional
-
 public:
-    Dart(): m_id(0){
-        for (auto& pDart : involution_pointers)pDart = nullptr;
-        for (auto c : cell_dimensions)c = 0;
+    int m_id;
+    int a[4]; // involution: a0, a1, a2, a3(null)
+    int v; // 0-dimensional cell: vertex id, NOT 3-dimensional cell: volume
+    int e; // 1-dimensional cell: edge id
+    int f; // 2-dimensional cell: face id
+    
+public:
+    Dart() :
+        m_id(_NULL_),
+        v(_NULL_),
+        e(_NULL_),
+        f(_NULL_)
+    {
+        for (int i = 0; i != 4; ++i) a[i] = _NULL_;
     }
-
-    // settings
-    // set dart id
-    int& id() { return m_id; }
-
-    // set involutions
-    void set_involution_to_dart(int dimension, Dart* dptr) {
-        involution_pointers[dimension] = dptr; //dptr could be nullptr
-    }
-
-    /*set incident cells :
-    * cell_dimensions[0]: id of 0-cell (vertex id)
-    * cell_dimensions[1]: id of 1-cell (edge id)
-    * cell_dimensions[2]: id of 2-cell (face id)
-    * cell_dimensions[3]: id of 3-cell (volume id) -- always null(_NULL_)*/
-    void set_incident_cell(int dimension, std::size_t cell_id) {
-        if (dimension >= 0 && dimension <= 3) {
-            cell_dimensions[dimension] = cell_id;
-        }
-    }
-
-    // helpful for debugging
-    void print_id()const { std::cout << m_id << '\n'; }
-    void print_cell(int dimension) { std::cout << cell_dimensions[dimension] << '\n'; }
-    void print_involution(int dimension) { std::cout << involution_pointers[dimension]->id() << '\n'; }
-
-
-    // cells:
-    // ...
-
 };
 
 
@@ -157,6 +176,8 @@ public:
         std::vector<Vertex>* vptr,
         std::vector<std::vector<int>>* fptr)
     {
+        // vptr->emplace_back(0.0, 0.0, 0.0); // change 0-based index to 1-based index
+
         std::string filename = param_filepath + param_filename; // filename
         std::string line;
         std::ifstream file(filename);
@@ -299,17 +320,17 @@ public:
     * @return:
     * a std::vector<int> contains the edge indexes in the edge list
     */
-    static std::vector<int> facefindEdge(
-        std::vector<std::vector<int>>* fptr,
-        std::vector<std::vector<int>>* eptr,
-        int faceid)
-    {
-        std::vector<int> result;              
-        if (faceid < 0 || faceid >= fptr->size())return result;
+    static void facefindEdge(
+        std::vector<std::vector<int>>& facelist,
+        std::vector<std::vector<int>>& edgelist,
+        int faceid,
+        std::vector<int>& result)
+    {    
+        if (faceid < 0 || faceid >= facelist.size())return;
 
 
-        std::vector<int>* faceptr = &fptr->at(faceid); // face[faceid]: std::vector<int>
-        int numEdge = (int)eptr->size();
+        std::vector<int>* faceptr = &facelist[faceid]; // face[faceid]: std::vector<int>
+        int numEdge = (int)edgelist.size();
         int numFace = (int)faceptr->size();
 
 
@@ -323,8 +344,8 @@ public:
             int vertexB = faceptr->at(fid + 1); // caution: may overflow
 
             for (int eid = 0; eid != numEdge; ++eid) {
-                int vertex_a = (*eptr)[eid][0]; // each element in eptr array contains two integers
-                int vertex_b = (*eptr)[eid][1];
+                int vertex_a = edgelist[eid][0]; // each element in eptr array contains two integers
+                int vertex_b = edgelist[eid][1];
 
                 if ((vertexA == vertex_a && vertexB == vertex_b) ||
                     (vertexA == vertex_b && vertexB == vertex_a))
@@ -340,8 +361,8 @@ public:
         int vertexA = faceptr->at(numFace - 1); // the last integer
         int vertexB = faceptr->at(0); // the first integer
         for (int eid = 0; eid != numEdge; ++eid) {
-            int vertex_a = (*eptr)[eid][0]; // each element in eptr array contains two integers
-            int vertex_b = (*eptr)[eid][1];
+            int vertex_a = edgelist[eid][0]; // each element in eptr array contains two integers
+            int vertex_b = edgelist[eid][1];
 
             if ((vertexA == vertex_a && vertexB == vertex_b) ||
                 (vertexA == vertex_b && vertexB == vertex_a))
@@ -350,6 +371,30 @@ public:
             } // end if
         } // end for: each edge in the edge list
 
-        return result;
+    }
+
+
+    static void buildDartList(
+        std::vector<std::vector<int>>& facelist,
+        std::vector<std::vector<int>>& edgelist,
+        std::vector<Dart>& dartlist)
+    {
+        for(int faceid = 0; faceid != facelist.size();++faceid){
+            std::vector<int> findEdge;
+
+            // for each face, find incident edges(store in edge id)
+
+        }
     }
 };
+
+
+
+// overload functions:
+
+// print vertices
+std::ostream& operator<<(std::ostream& os, std::vector<Vertex>& vertices) {
+    for (auto& v : vertices)
+        os << "(" << v[0] << ", " << v[1] << ", " << v[2] << ")" << '\n';
+    return os;
+}
