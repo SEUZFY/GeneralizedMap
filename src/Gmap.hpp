@@ -518,9 +518,14 @@ public:
             for (start_id; start_id != currentN-1; ++start_id) {
                 for (int next_id = start_id + 1; next_id != currentN; ++next_id) {
                     //std::cout << start_id << " " << next_id << '\n';
+                    if (Darts[start_id].v == Darts[next_id].v) { // two darts are a[1] related
+
+                        Darts[start_id].a[1] = Darts[next_id].id;
+                        Darts[next_id].a[1] = Darts[start_id].id;
+                    } // end if : vertex ids of two darts are the same
                 }
 
-            }
+            } // end for: newly added darts in this face
 
         }// end for: each faces
     }

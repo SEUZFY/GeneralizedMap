@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
 
     std::cout << '\n';
     for (auto& d : Darts) {
-        std::cout << d.id << " " << d.a[0] << '\n';
+        std::cout << "id: "<<d.id << " " <<"a[1]: " << d.a[1] << '\n';
     }
 
     
