@@ -111,16 +111,20 @@ public:
 class Vertex : public Point{
 public:
     int id;
-
-    // a dart incident to this Vertex:
-    // dart id? or a pointer?
-
+    int Vertex_dart;
+    
 public:
     // constructor without arguments
-    Vertex() : Point(),id(0){}
+    Vertex() : 
+        Point(),
+        id(_NULL_),
+        Vertex_dart(_NULL_){}
 
     // constructor with x,y,z arguments to immediately initialise the point member on this Vertex.
-    Vertex(float x, float y, float z) : Point(x, y, z),id(0){}
+    Vertex(float x, float y, float z) : 
+        Point(x, y, z),
+        id(_NULL_),
+        Vertex_dart(_NULL_){}
 
     // access id
     // int& id() { return m_id; }
@@ -140,8 +144,12 @@ public:
     // a dart incident to this Edge:
     int Edge_dart_id;
 
-    // once set the Edge_dart_id, set the flag as true
-    // bool Edge_dart_flag;
+public:
+    Edge():
+        id(_NULL_),
+        start(_NULL_),
+        end(_NULL_),
+        Edge_dart_id(_NULL_){}
 
     // function to compute the barycenter for this Edge (needed for triangulation output):
     // Point barycenter() {}
@@ -189,10 +197,11 @@ public:
     static void readobj(
         const std::string& param_filepath,
         const std::string& param_filename,
-        std::vector<Vertex>* vptr,
-        std::vector<std::vector<int>>* fptr)
+        std::vector<Vertex>& vertices,
+        std::vector<std::vector<int>>& facelist)
     {
-        vptr->emplace_back(Vertex(0.0, 0.0, 0.0)); // change 0-based index to 1-based index
+        
+        vertices.emplace_back(Vertex(0.0, 0.0, 0.0)); // change 0-based index to 1-based index
 
         std::string filename = param_filepath + param_filename; // filename
         std::string line;
@@ -238,12 +247,19 @@ public:
             } // end while: process each element in one line
 
             // process each point
-            if (!coordinates.empty() && coordinates.size() == 3) vptr->emplace_back(coordinates[0], coordinates[1], coordinates[2]); 
-            
+            if (!coordinates.empty() && coordinates.size() == 3) {
+                vertices.emplace_back(coordinates[0], coordinates[1], coordinates[2]);
+            }
+              
             // process each face
-            if (!face_vertex.empty())fptr->emplace_back(face_vertex);
+            if (!face_vertex.empty())facelist.emplace_back(face_vertex);
         
         } // end while: each line in the file
+
+        // set vertex id for each vertex
+        for (int i = 0; i != vertices.size(); ++i) {
+            vertices[i].id = i;
+        }
 
     }
 
@@ -397,6 +413,7 @@ public:
 
     /*function: build Faces
     * NB: the Face_dart_id remains to be unknown
+    * 
     * @parameter:
     * facelist: std::vector<std::vector<int>> array, contains vertex ids for each face
     * edgelist: std::vector<std::vector<int>> array, contains vertex ids for each edge
@@ -427,6 +444,7 @@ public:
 
     /*function: build Edges
     * NB: the Edge_dart_id remains to be unknown -- set it in buildDarts()
+    * 
     * @parameter:
     * edgelist: std::vector<std::vector<int>> array, contains vertex ids for each edge
     * Faces: built Faces array, contains all the faces(Face_dart_id remains to be set)
@@ -446,18 +464,30 @@ public:
     }
     
 
+    /*function: build Darts
+    * NB: the a[2] remains to be set
+    * 
+    * @parameter:
+    * Faces: a vector contains all faces needed
+    * Edges: a vector contains all edges needed
+    * Darts: result vector, store all the built darts
+    */
     static void buildDarts(
+        std::vector<Vertex>& vertices,
         std::vector<Face>& Faces,
         std::vector<Edge>& Edges,
         std::vector<Dart>& Darts)
     {
-        int did(0); // once its assigned to id, did + 1
+        int did(0); // once it's assigned to a dart id, did + 1
 
         for (int fid = 0; fid != Faces.size();++fid) { // for each face
 
             // for each edge of one face:  Faces[fid], build 2 Darts of each face
             for (int eid = 0; eid != Faces[fid].Face_edge_list.size();++eid) { 
                 
+                // current edge:
+                int edge_id = Faces[fid].Face_edge_list[eid];
+
                 // each edge has two vertices, for the same face, same edge, two vertices lead to
                 // two darts: d1, d2
                 Dart d1;
@@ -465,7 +495,6 @@ public:
                 ++did;
                 d1.f = Faces[fid].id; // fid = Faces[fid].id
 
-                int edge_id = Faces[fid].Face_edge_list[eid];
                 d1.e = edge_id; // edge id of this face: Faces[fid].Face_edge_list[eid]
                 d1.v = Edges[edge_id].start;
 
@@ -491,7 +520,13 @@ public:
                 // for each edge: Edges[edge_id], just set one arbitrary dart as its incident dart
                 // for the same edge, the Edge_dart_id may get updated when traversing each face
                 Edges[edge_id].Edge_dart_id = d1.id; 
-                
+
+                // set the incident dart of two vertices of this edge
+                int va_index = Edges[edge_id].start; // d1.v
+                int vb_index = Edges[edge_id].end; // d2.v
+                vertices[va_index].Vertex_dart = d1.id;
+                vertices[vb_index].Vertex_dart = d2.id;
+
             } // end for: each edge
 
 
@@ -533,32 +568,28 @@ public:
     }
 	
     
-    
-    
-    
- //   static void buildDartList(
-	//	std::vector<std::vector<int>>& facelist,
-	//	std::vector<std::vector<int>>& edgelist,
-	//	std::vector<Dart>& dartlist)
-	//{
-	//	for (int faceid = 0; faceid != facelist.size(); ++faceid) {
-	//		std::vector<int> findEdge;
-
-	//		//for each face, find incident edges(stored in edge id)
- //           BuildGmapDependency::facefindEdge(facelist, edgelist, faceid, findEdge);
-
-	//		for (auto& edgeid : findEdge) {
-	//			//edgelist[edgeid][0] --vertexA of this edge
-	//				//edgelist[edgeid][1] --vertexB of this edge
-
-	//		}
-
-	//	}
-	//}
+    /*function: build Darts Alpha(involutions)
+    * NB: the a[3] reamains as _NULL_(-9999)
+    * 
+    * @parameter:
+    * Darts: a vector contains all darts needed
+    * NB: Need to use buildDarts() function first
+    */
+    static void buildDartsAlpha(std::vector<Dart>& Darts) {       
+        int N = (int)Darts.size();
+        for (int i = 0; i != N - 1; ++i) {
+            for (int j = i + 1; j != N; ++j) {
+                if ((Darts[i].e == Darts[j].e) && // same edge
+                    (Darts[i].v == Darts[j].v)) // same vertex
+                {
+                    Darts[i].a[2] = Darts[j].id; // a[2] related
+                    Darts[j].a[2] = Darts[i].id;
+                }
+            }
+        } // end for: each dart
+    }
+        
 };
-
-
-
 
 
 // overload functions:

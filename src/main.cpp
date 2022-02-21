@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
     * to find the vertex in the vertices according to face id or edge id
     */
 
-    ReadOBJ::readobj(DATA_PATH, "/test.obj", &vertices, &face_list);
+    ReadOBJ::readobj(DATA_PATH, "/torus.obj", vertices, face_list);
     BuildGmapDependency::buildEdgeList(&face_list, &edge_list);
 
     /*
@@ -83,6 +83,8 @@ int main(int argc, char* argv[])
     */
     
     // test the read
+
+    std::ios::sync_with_stdio(false); // speed up for std::cin and std::cout
 
     // test vertices
     std::cout << "Reading... --------------------------------------------------" << '\n';
@@ -178,16 +180,22 @@ int main(int argc, char* argv[])
     // test Darts
     std::cout << "Building Darts..." << '\n';
     std::vector<Dart> Darts;
-    BuildGmap::buildDarts(Faces, Edges, Darts);
+    BuildGmap::buildDarts(vertices, Faces, Edges, Darts);
     std::cout << "Dart numbers: " << Darts.size() << '\n';
 
     std::cout << '\n';
-    for (auto& d : Darts) {
-        std::cout << "id: "<<d.id << " " <<"a[1]: " << d.a[1] << '\n';
-    }
-
+    std::cout << "Building Darts Alpha..." << '\n';
+    BuildGmap::buildDartsAlpha(Darts);
     
+    for (auto& d : Darts) {
+        std::cout << "id: "<<d.id << " " <<"a[2]: " << d.a[2] << '\n';
+    }
+    std::cout << '\n';
 
+    std::cout << "Vertex - incident dart: " << '\n';
+    for (auto& v : vertices) {
+        std::cout << "Vertex id: " << v.id << " " << "incident dart: " << v.Vertex_dart << '\n';
+    }
 
     // ## Construct generalised map using the structures from Gmap.h ##
 
