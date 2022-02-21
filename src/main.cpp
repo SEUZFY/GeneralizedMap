@@ -44,7 +44,43 @@ int main(int argc, char* argv[])
     */
 
     ReadOBJ::readobj(DATA_PATH, "/cube.obj", &vertices, &face_list);
-    BuildGmap::buildEdgeList(&face_list, &edge_list);
+    BuildGmapDependency::buildEdgeList(&face_list, &edge_list);
+
+    /*
+    * vertices: contains all vertex, index is the id of vertex
+    (0, 0, 0)
+    (1, 1, -1) // index: 1, vertex id: 1
+    (1, -1, -1) // index: 2, vertex id: 2
+    (1, 1, 1)
+    (1, -1, 1)
+    (-1, 1, -1)
+    (-1, -1, -1)
+    (-1, 1, 1)
+    (-1, -1, 1) // index: 8, vertex id: 8
+
+    * face_list: face id = index
+    1573 // face id: 0
+    4378 // face id: 1
+    8756
+    6248
+    2134
+    6512 // face id: 5
+
+    * edge list: edge id = index
+    1 5 // edge id: 0
+    5 7 // edge id: 1
+    7 3
+    3 1
+    4 3
+    7 8
+    8 4
+    5 6
+    6 8
+    6 2
+    2 4
+    2 1 // edge id: 11
+    * edge_list
+    */
     
     // test the read
 
@@ -67,17 +103,55 @@ int main(int argc, char* argv[])
 
     // test findEdge()
     std::vector<int> result;
-    BuildGmap::facefindEdge(face_list, edge_list, 2, result);
+    BuildGmapDependency::facefindEdge(face_list, edge_list, 2, result);
     for (auto& eid : result) {
         std::cout << eid << " ";
     }
+    std::cout << '\n';
+
+    /*
+    * Build Gmap
+    */
+    std::cout << "Building faces..." << '\n';
+    std::vector<Face> Faces;
+    BuildGmap::buildFaces(face_list, edge_list, Faces);
+    std::cout << "Face numbers: "<<Faces.size() << '\n';
+    for (auto& f : Faces) {
+        for (auto& eid : f.Face_edge_list) {
+            std::cout<< edge_list[eid][0] << edge_list[eid][1]<<" ";
+        }
+        std::cout << '\n';
+    }
+    /*
+    * edge_list:
+    * one edge id maps two vertex ids, but the order won't be assured the same as origin
+    * ie, (7 8) and (8 7) is the same edge
+    * 
+    * Origin:
+    1573 // face id: 0
+    4378 // face id: 1, it contains an edge: (7 8) --> the same edge
+    8756 // face id: 2, it contains an edge: (8 7) --> the same edge
+    6248
+    2134
+    6512 // face id: 5
+    * 
+    * output:
+    15 57 73 31 // face id: 0
+    43 73 78 84
+    78 57 56 68
+    62 24 84 68
+    21 31 43 24
+    56 15 21 62 // face id: 5
+    */
+ 
+        
 
     // build dartlist
-    std::vector<Dart> dart_list;
+    /*std::vector<Dart> dart_list;
     BuildGmap::buildDartList(face_list, edge_list,dart_list);
     Dart d;
     std::cout << '\n';
-    std::cout << d.e;
+    std::cout << d.e;*/
 
 
     // test Dart

@@ -90,7 +90,7 @@ Then you could create and link Darts like:
 
 class Dart {
 public:
-    int m_id;
+    int id;
     int a[4]; // involution: a0, a1, a2, a3(null)
     int v; // 0-dimensional cell: vertex id, NOT 3-dimensional cell: volume
     int e; // 1-dimensional cell: edge id
@@ -98,7 +98,7 @@ public:
     
 public:
     Dart() :
-        m_id(_NULL_),
+        id(_NULL_),
         v(_NULL_),
         e(_NULL_),
         f(_NULL_)
@@ -110,20 +110,20 @@ public:
 
 class Vertex : public Point{
 private:
-    int m_id;
+    int id;
 
     // a dart incident to this Vertex:
     // dart id? or a pointer?
 
 public:
     // constructor without arguments
-    Vertex() : Point(),m_id(0){}
+    Vertex() : Point(),id(0){}
 
     // constructor with x,y,z arguments to immediately initialise the point member on this Vertex.
-    Vertex(float x, float y, float z) : Point(x, y, z),m_id(0){}
+    Vertex(float x, float y, float z) : Point(x, y, z),id(0){}
 
     // access id
-    int& id() { return m_id; }
+    // int& id() { return m_id; }
 
 
     virtual ~Vertex() = default;
@@ -133,8 +133,12 @@ public:
 
 class Edge {
 public:
+    int id;
+    int start; // start vertex id
+    int end; // end vertex id
+
     // a dart incident to this Edge:
-    // ...
+    int Edge_dart_id;
 
     // function to compute the barycenter for this Edge (needed for triangulation output):
     // Point barycenter() {}
@@ -143,8 +147,17 @@ public:
 
 class Face {
 public:
+    int id;
+    std::vector<int> Face_edge_list; // contains the edgeid of a Face
+    std::vector<int> Face_vertex_list; // contains the vertex id of a Face, oriented CCW
+    
     // a dart incident to this Face:
-    // ...
+    int Face_dart_id;
+public:
+    Face() :
+        id(_NULL_),
+        Face_dart_id(_NULL_){}
+    
 
     // function to compute the barycenter for this Face (needed for triangulation output):
     // Point barycenter() {}
@@ -153,7 +166,7 @@ public:
 
 
 class Volume {
-public:
+
     // a dart incident to this Volume:
     // ...
 
@@ -176,7 +189,7 @@ public:
         std::vector<Vertex>* vptr,
         std::vector<std::vector<int>>* fptr)
     {
-        // vptr->emplace_back(0.0, 0.0, 0.0); // change 0-based index to 1-based index
+        vptr->emplace_back(Vertex(0.0, 0.0, 0.0)); // change 0-based index to 1-based index
 
         std::string filename = param_filepath + param_filename; // filename
         std::string line;
@@ -234,7 +247,7 @@ public:
 };
 
 
-class BuildGmap {
+class BuildGmapDependency {
 public:
 
     /*
@@ -317,8 +330,8 @@ public:
     * eptr: a vector pointer pointing to a std::vector<std::vector<int>> array, edge list
     * faceid: the id of a certain face in the face list
     * 
-    * @return:
-    * a std::vector<int> contains the edge indexes in the edge list
+    * @result:
+    * std::vector<int> result, stores the edge indexes in the edge lists.
     */
     static void facefindEdge(
         std::vector<std::vector<int>>& facelist,
@@ -373,20 +386,68 @@ public:
 
     }
 
+};
 
-    static void buildDartList(
+
+class BuildGmap {
+public:
+
+    /*function: build Faces
+    * NB: the Face_dart_id remains to be unknown
+    * @parameter:
+    * facelist: std::vector<std::vector<int>> array, contains vertex ids for each face
+    * edgelist: std::vector<std::vector<int>> array, contains vertex ids for each edge
+    * Faces: built Faces array, contains all the faces(Face_dart_id remains to be set)
+    */
+    static void buildFaces(
         std::vector<std::vector<int>>& facelist,
         std::vector<std::vector<int>>& edgelist,
-        std::vector<Dart>& dartlist)
+        std::vector<Face>& Faces)
     {
-        for(int faceid = 0; faceid != facelist.size();++faceid){
-            std::vector<int> findEdge;
+        for (int fid = 0; fid != facelist.size(); ++fid) {
+            Face f;
+            f.id = fid;
 
-            // for each face, find incident edges(store in edge id)
+            for (int vid = 0; vid != facelist[fid].size(); ++vid) { // add vertex list for this face
+                // facelist[fid][vid] -- vertex id of this face
+                // facelist[fid] -- a std::vector<int> contains the vertex ids
+                f.Face_vertex_list.emplace_back(facelist[fid][vid]);
+            }
+
+            BuildGmapDependency::facefindEdge(facelist, edgelist, fid, f.Face_edge_list); // add edge list for this face
+
+            Faces.emplace_back(f);
 
         }
     }
+
+	
+    
+    
+    
+    
+ //   static void buildDartList(
+	//	std::vector<std::vector<int>>& facelist,
+	//	std::vector<std::vector<int>>& edgelist,
+	//	std::vector<Dart>& dartlist)
+	//{
+	//	for (int faceid = 0; faceid != facelist.size(); ++faceid) {
+	//		std::vector<int> findEdge;
+
+	//		//for each face, find incident edges(stored in edge id)
+ //           BuildGmapDependency::facefindEdge(facelist, edgelist, faceid, findEdge);
+
+	//		for (auto& edgeid : findEdge) {
+	//			//edgelist[edgeid][0] --vertexA of this edge
+	//				//edgelist[edgeid][1] --vertexB of this edge
+
+	//		}
+
+	//	}
+	//}
 };
+
+
 
 
 

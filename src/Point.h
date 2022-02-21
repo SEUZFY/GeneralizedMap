@@ -11,7 +11,7 @@
 * dot/cross product: p.dot(q) or p.cross(q).
 */
 class Point {
-private:
+public:
     float x, y, z;
 
 public:
