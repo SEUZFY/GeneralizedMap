@@ -43,44 +43,9 @@ int main(int argc, char* argv[])
     * to find the vertex in the vertices according to face id or edge id
     */
 
-    ReadOBJ::readobj(DATA_PATH, "/torus.obj", vertices, face_list);
+    ReadOBJ::readobj(DATA_PATH, "/cube.obj", vertices, face_list);
     BuildGmapDependency::buildEdgeList(&face_list, &edge_list);
 
-    /*
-    * vertices: contains all vertex, index is the id of vertex
-    (0, 0, 0)
-    (1, 1, -1) // index: 1, vertex id: 1
-    (1, -1, -1) // index: 2, vertex id: 2
-    (1, 1, 1)
-    (1, -1, 1)
-    (-1, 1, -1)
-    (-1, -1, -1)
-    (-1, 1, 1)
-    (-1, -1, 1) // index: 8, vertex id: 8
-
-    * face_list: face id = index
-    1573 // face id: 0
-    4378 // face id: 1
-    8756
-    6248
-    2134
-    6512 // face id: 5
-
-    * edge list: edge id = index
-    1 5 // edge id: 0
-    5 7 // edge id: 1
-    7 3
-    3 1
-    4 3
-    7 8
-    8 4
-    5 6
-    6 8
-    6 2
-    2 4
-    2 1 // edge id: 11
-    * edge_list
-    */
     
     // test the read
 
@@ -88,25 +53,28 @@ int main(int argc, char* argv[])
 
     // test vertices
     std::cout << "Reading... --------------------------------------------------" << '\n';
-    std::cout << "vertices: " << '\n';
+    std::cout << "***************** vertices *****************: " << '\n';
     std::cout << vertices;
 
     // test face-index
-    std::cout << "face-vertex index: " << '\n';
+    std::cout << "***************** face-vertex index *****************: " << '\n';
     for (auto& f : face_list) {
         for (auto& id : f) {
             std::cout << id;
         }
         std::cout << '\n';
     }
+    std::cout << "End Reading... --------------------------------------------------" << '\n';
+    std::cout << '\n';
 
     // test edge list
-    std::cout << "edge list: " << '\n';
+    std::cout << "***************** edge list *****************" << '\n';
     std::cout <<"edge list size: " << edge_list.size() << '\n';
     for (auto& e : edge_list) {
-        std::cout << e[0] << " " << e[1] << '\n';
+        std::cout << "edge id: " << (&e - &edge_list[0]) << " " << "Vertex id: " << " "
+            << e[0] << " " << e[1] << '\n';
     }
-
+    std::cout << '\n';
 
     /*
     * Build Gmap
@@ -122,10 +90,11 @@ int main(int argc, char* argv[])
     BuildGmap::buildFaces(face_list, edge_list, Faces);
     std::cout << "Face numbers: "<<Faces.size() << '\n';
     std::cout << '\n';
+
     for (auto& f : Faces) {
-        std::cout << "edge id belonging to one face: ";
+        std::cout << "face id: " << (&f - &Faces[0]) << " " << "edge id: ";
         for (auto& eid : f.Face_edge_list) {
-            std::cout<<eid << " ";
+            std::cout << eid << " ";
         }
         std::cout << '\n';
     }
