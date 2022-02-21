@@ -148,7 +148,7 @@ public:
 class Face {
 public:
     int id;
-    std::vector<int> Face_edge_list; // contains the edgeid of a Face
+    std::vector<int> Face_edge_list; // contains the edgeid in Edges of a Face
     std::vector<int> Face_vertex_list; // contains the vertex id of a Face, oriented CCW
     
     // a dart incident to this Face:
@@ -448,16 +448,76 @@ public:
         std::vector<Edge>& Edges,
         std::vector<Dart>& Darts)
     {
-        int did(0); // once emplace_back() did + 1
+        int did(0); // once its assigned to id, did + 1
 
         for (int fid = 0; fid != Faces.size();++fid) { // for each face
-            for (int eid = 0; eid != Faces[fid].Face_edge_list.size();++eid) { // for each edge of one face:  Faces[fid]
-                Dart d;
-                d.id = did;
-                d.f = fid; // fid = Face[fid].id
-                d.e = Faces[fid].Face_edge_list[eid]; // edge id of face: Faces[fid]
+
+            // for each edge of one face:  Faces[fid], build 2 Darts of each face
+            for (int eid = 0; eid != Faces[fid].Face_edge_list.size();++eid) { 
+                
+                // each edge has two vertices, for the same face, same edge, two vertices lead to
+                // two darts: d1, d2
+                Dart d1;
+                d1.id = did;
+                ++did;
+                d1.f = Faces[fid].id; // fid = Faces[fid].id
+
+                int edge_id = Faces[fid].Face_edge_list[eid];
+                d1.e = edge_id; // edge id of this face: Faces[fid].Face_edge_list[eid]
+                d1.v = Edges[edge_id].start;
+
+
+                // Dart d2: same face and same edge with d1, but different vertex
+                Dart d2;
+                d2.id = did;
+                ++did;
+                d2.f = Faces[fid].id;
+
+                d2.e = edge_id; // edge id of this face: Faces[fid].Face_edge_list[eid]
+                d2.v = Edges[edge_id].end; // different from d1
+
+                //set d1 d2: a[0] involution
+                d1.a[0] = d2.id;
+                d2.a[0] = d1.id;
+
+                // add d1, d2 to Darts
+                Darts.emplace_back(d1);
+                Darts.emplace_back(d2);
+
+                // set the incident dart of this edge
+                // Edges[edge_id].Edge_dart_id = d1.id; // for each edge: Edges[edge_id], just set one arbitrary dart as its incident dart
+                
 
             } // end for: each edge
+
+
+            // set the incident dart of current face as the incident dart of 
+            // the first edge's incident dart of this face
+            //int first_edge_id = Faces[fid].Face_edge_list[0];
+            //Faces[fid].Face_dart_id = Edges[first_edge_id].Edge_dart_id;
+
+
+            // for the darts already stored in Darts, set a[1]: same face, same vertex, different edge
+            // the edge ids of a face are stored CCW
+            // for the newly-stored darts: newly add 2*Faces[fid].Face_edge_list.size() elements
+            // current size() - newly added size --> starting index of Dart
+            int current_size = (int)Darts.size();
+            int newly_added_edges = (int)Faces[fid].Face_edge_list.size();
+            int newly_added_darts = 2 * newly_added_edges;
+            int start_id = current_size - newly_added_darts;
+            
+
+            // starting from start_id to Darts.size():
+            // these darts are a[1] related: same face, same vertex, different edge
+            // need to filter out a[0] related darts --> condition: same vertex
+            int currentN = (int)Darts.size(); // to use currentN-1 to get the last dart
+            for (start_id; start_id != currentN-1; ++start_id) {
+                for (int next_id = start_id + 1; next_id != currentN; ++next_id) {
+                    //std::cout << start_id << " " << next_id << '\n';
+                }
+
+            }
+
         }// end for: each faces
     }
 	

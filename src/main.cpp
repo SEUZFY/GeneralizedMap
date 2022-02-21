@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
     std::cout << "Face numbers: "<<Faces.size() << '\n';
     for (auto& f : Faces) {
         for (auto& eid : f.Face_edge_list) {
-            std::cout<< edge_list[eid][0] << edge_list[eid][1]<<" ";
+            std::cout<< eid <<" ";
         }
         std::cout << '\n';
     }
@@ -138,12 +138,28 @@ int main(int argc, char* argv[])
     6512 // face id: 5
     * 
     * output:
-    15 57 73 31 // face id: 0
-    43 73 78 84
-    78 57 56 68
-    62 24 84 68
-    21 31 43 24
-    56 15 21 62 // face id: 5
+    // face id: 0, stands for 4 edges, starting from vertex 1, oriented CCW
+    Building Edges...
+    id: 0 15
+    id: 1 57
+    id: 2 73
+    id: 3 31
+    id: 4 43
+    id: 5 78
+    id: 6 84
+    id: 7 56
+    id: 8 68
+    id: 9 62
+    id: 10 24
+    id: 11 21 
+
+    Face numbers: 6
+    0 1 2 3 // face id: 0, edges contained: Edges[0], Edges[1], Edges[2], Edges[3], CCW
+    4 2 5 6
+    5 1 7 8
+    9 10 6 8
+    11 3 4 10
+    7 0 11 9
     */
  
     // test Edges
@@ -154,29 +170,22 @@ int main(int argc, char* argv[])
         std::cout << "id: " << e.id << " " << e.start << e.end << '\n';
     }
         
+    // test Darts
+    std::cout << "Building Darts..." << '\n';
+    std::vector<Dart> Darts;
+    BuildGmap::buildDarts(Faces, Edges, Darts);
+    std::cout << "Dart numbers: " << Darts.size() << '\n';
 
-    // build dartlist
-    /*std::vector<Dart> dart_list;
-    BuildGmap::buildDartList(face_list, edge_list,dart_list);
-    Dart d;
     std::cout << '\n';
-    std::cout << d.e;*/
+    //std::cout << "Dart ids: " << '\n';
 
-
-    // test Dart
-    //Dart d;
-    //Dart d1;
-
-    //d1.id() = 2;
-    //d.set_incident_cell(0, 25);
-    //d.set_involution_to_dart(0, &d1); // a0 -> d1
-    //d.print_involution(0);
-
-    // test vertex
-    // Vertex v(1,2,3);
-    // v.print();
-    // std::cout << v.id();
+    //for (auto& d : Darts)std::cout << d.id << " ";
     
+
+    //test incident darts
+    /*for (auto& d : Darts) {
+        std::cout << d.e << " ";
+    }*/
     
 
 
