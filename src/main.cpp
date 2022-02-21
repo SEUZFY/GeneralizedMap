@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
     * to find the vertex in the vertices according to face id or edge id
     */
 
-    ReadOBJ::readobj(DATA_PATH, "/cube.obj", &vertices, &face_list);
+    ReadOBJ::readobj(DATA_PATH, "/test.obj", &vertices, &face_list);
     BuildGmapDependency::buildEdgeList(&face_list, &edge_list);
 
     /*
@@ -85,9 +85,12 @@ int main(int argc, char* argv[])
     // test the read
 
     // test vertices
+    std::cout << "Reading... --------------------------------------------------" << '\n';
+    std::cout << "vertices: " << '\n';
     std::cout << vertices;
 
     // test face-index
+    std::cout << "face-vertex index: " << '\n';
     for (auto& f : face_list) {
         for (auto& id : f) {
             std::cout << id;
@@ -96,22 +99,17 @@ int main(int argc, char* argv[])
     }
 
     // test edge list
+    std::cout << "edge list: " << '\n';
     std::cout <<"edge list size: " << edge_list.size() << '\n';
     for (auto& e : edge_list) {
         std::cout << e[0] << " " << e[1] << '\n';
     }
 
-    // test findEdge()
-    std::vector<int> result;
-    BuildGmapDependency::facefindEdge(face_list, edge_list, 2, result);
-    for (auto& eid : result) {
-        std::cout << eid << " ";
-    }
-    std::cout << '\n';
 
     /*
     * Build Gmap
     */
+    std::cout << "Building gmap... --------------------------------------------------" << '\n';
 
     // test Faces
     std::cout << "Building faces..." << '\n';
@@ -177,18 +175,11 @@ int main(int argc, char* argv[])
     std::cout << "Dart numbers: " << Darts.size() << '\n';
 
     std::cout << '\n';
-    //std::cout << "Dart ids: " << '\n';
-
-    //for (auto& d : Darts)std::cout << d.id << " ";
-    
-    /*for (auto& d : Darts) {
-        std::cout << d.e << " ";
-    }*/
-
-    //test incident darts
-    for (auto& f : Faces) {
-        std::cout << f.Face_dart_id << " ";
+    for (auto& d : Darts) {
+        std::cout << d.id << " " << d.a[0] << '\n';
     }
+
+    
 
 
     // ## Construct generalised map using the structures from Gmap.h ##
