@@ -112,6 +112,8 @@ int main(int argc, char* argv[])
     /*
     * Build Gmap
     */
+
+    // test Faces
     std::cout << "Building faces..." << '\n';
     std::vector<Face> Faces;
     BuildGmap::buildFaces(face_list, edge_list, Faces);
@@ -144,6 +146,13 @@ int main(int argc, char* argv[])
     56 15 21 62 // face id: 5
     */
  
+    // test Edges
+    std::cout << "Building Edges..." << '\n';
+    std::vector<Edge> Edges;
+    BuildGmap::buildEdges(edge_list, Edges);
+    for (auto& e : Edges) {
+        std::cout << "id: " << e.id << " " << e.start << e.end << '\n';
+    }
         
 
     // build dartlist

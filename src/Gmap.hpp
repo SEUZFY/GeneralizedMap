@@ -134,7 +134,7 @@ public:
 class Edge {
 public:
     int id;
-    int start; // start vertex id
+    int start; // start vertex id, NB: (start, end) and (end, start) is the same edge
     int end; // end vertex id
 
     // a dart incident to this Edge:
@@ -420,6 +420,28 @@ public:
 
         }
     }
+
+
+    /*function: build Edges
+    * NB: the Edge_dart_id remains to be unknown
+    * @parameter:
+    * edgelist: std::vector<std::vector<int>> array, contains vertex ids for each edge
+    * Faces: built Faces array, contains all the faces(Face_dart_id remains to be set)
+    */
+    static void buildEdges(
+        std::vector<std::vector<int>>& edgelist,
+        std::vector<Edge>& Edges)
+    {
+        for (int eid = 0; eid != edgelist.size(); ++eid) {
+            Edge e;
+            e.id = eid;
+            e.start = edgelist[eid][0];
+            e.end = edgelist[eid][1];
+
+            Edges.emplace_back(e);
+        }
+    }
+    
 
 	
     
