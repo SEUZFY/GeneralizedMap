@@ -109,7 +109,7 @@ public:
 
 
 class Vertex : public Point{
-private:
+public:
     int id;
 
     // a dart incident to this Vertex:
@@ -443,6 +443,23 @@ public:
     }
     
 
+    static void buildDarts(
+        std::vector<Face>& Faces,
+        std::vector<Edge>& Edges,
+        std::vector<Dart>& Darts)
+    {
+        int did(0); // once emplace_back() did + 1
+
+        for (int fid = 0; fid != Faces.size();++fid) { // for each face
+            for (int eid = 0; eid != Faces[fid].Face_edge_list.size();++eid) { // for each edge of one face:  Faces[fid]
+                Dart d;
+                d.id = did;
+                d.f = fid; // fid = Face[fid].id
+                d.e = Faces[fid].Face_edge_list[eid]; // edge id of face: Faces[fid]
+
+            } // end for: each edge
+        }// end for: each faces
+    }
 	
     
     
