@@ -111,17 +111,23 @@ int main(int argc, char* argv[])
     */
     std::cout << "Building gmap... --------------------------------------------------" << '\n';
 
+    std::cout << '\n';
+
     // test Faces
     std::cout << "Building faces..." << '\n';
+    
     std::vector<Face> Faces;
     BuildGmap::buildFaces(face_list, edge_list, Faces);
     std::cout << "Face numbers: "<<Faces.size() << '\n';
+    std::cout << '\n';
     for (auto& f : Faces) {
+        std::cout << "edge id belonging to one face: ";
         for (auto& eid : f.Face_edge_list) {
-            std::cout<< eid <<" ";
+            std::cout<<eid << " ";
         }
         std::cout << '\n';
     }
+    std::cout << '\n';
     /*
     * edge_list:
     * one edge id maps two vertex ids, but the order won't be assured the same as origin
@@ -165,8 +171,9 @@ int main(int argc, char* argv[])
     std::vector<Edge> Edges;
     BuildGmap::buildEdges(edge_list, Edges);
     for (auto& e : Edges) {
-        std::cout << "id: " << e.id << " " << e.start << e.end << '\n';
+        std::cout << "id: " << e.id << " " << "vertex id: " << e.start <<" "<< e.end << '\n';
     }
+    std::cout << '\n';
         
     // test Darts
     std::cout << "Building Darts..." << '\n';

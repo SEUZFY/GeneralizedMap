@@ -505,6 +505,7 @@ public:
             // the edge ids of a face are stored CCW
             // for the newly-stored darts: newly add 2*Faces[fid].Face_edge_list.size() elements
             // current size() - newly added size --> starting index of Dart
+
             int current_size = (int)Darts.size();
             int newly_added_edges = (int)Faces[fid].Face_edge_list.size();
             int newly_added_darts = 2 * newly_added_edges;
@@ -514,6 +515,7 @@ public:
             // starting from start_id to Darts.size():
             // these darts are a[1] related: same face, same vertex, different edge
             // need to filter out a[0] related darts --> condition: same vertex
+
             int currentN = (int)Darts.size(); // to use currentN-1 to get the last dart
             for (start_id; start_id != currentN-1; ++start_id) {
                 for (int next_id = start_id + 1; next_id != currentN; ++next_id) {
