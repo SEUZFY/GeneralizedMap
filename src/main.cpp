@@ -181,12 +181,14 @@ int main(int argc, char* argv[])
 
     //for (auto& d : Darts)std::cout << d.id << " ";
     
-
-    //test incident darts
     /*for (auto& d : Darts) {
         std::cout << d.e << " ";
     }*/
-    
+
+    //test incident darts
+    for (auto& f : Faces) {
+        std::cout << f.Face_dart_id << " ";
+    }
 
 
     // ## Construct generalised map using the structures from Gmap.h ##

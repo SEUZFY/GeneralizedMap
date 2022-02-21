@@ -140,6 +140,9 @@ public:
     // a dart incident to this Edge:
     int Edge_dart_id;
 
+    // once set the Edge_dart_id, set the flag as true
+    // bool Edge_dart_flag;
+
     // function to compute the barycenter for this Edge (needed for triangulation output):
     // Point barycenter() {}
 };
@@ -423,7 +426,7 @@ public:
 
 
     /*function: build Edges
-    * NB: the Edge_dart_id remains to be unknown
+    * NB: the Edge_dart_id remains to be unknown -- set it in buildDarts()
     * @parameter:
     * edgelist: std::vector<std::vector<int>> array, contains vertex ids for each edge
     * Faces: built Faces array, contains all the faces(Face_dart_id remains to be set)
@@ -485,16 +488,17 @@ public:
                 Darts.emplace_back(d2);
 
                 // set the incident dart of this edge
-                // Edges[edge_id].Edge_dart_id = d1.id; // for each edge: Edges[edge_id], just set one arbitrary dart as its incident dart
+                // for each edge: Edges[edge_id], just set one arbitrary dart as its incident dart
+                // for the same edge, the Edge_dart_id may get updated when traversing each face
+                Edges[edge_id].Edge_dart_id = d1.id; 
                 
-
             } // end for: each edge
 
 
             // set the incident dart of current face as the incident dart of 
             // the first edge's incident dart of this face
-            //int first_edge_id = Faces[fid].Face_edge_list[0];
-            //Faces[fid].Face_dart_id = Edges[first_edge_id].Edge_dart_id;
+            int first_edge_id = Faces[fid].Face_edge_list[0];
+            Faces[fid].Face_dart_id = Edges[first_edge_id].Edge_dart_id;
 
 
             // for the darts already stored in Darts, set a[1]: same face, same vertex, different edge
