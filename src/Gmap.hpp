@@ -110,8 +110,8 @@ public:
 
 class Vertex : public Point{
 public:
-    int id;
-    int Vertex_dart;
+    int id; // vertex id : the id in the vertices vector, also in OBJ file
+    int Vertex_dart; // incident dart
     
 public:
     // constructor without arguments
@@ -161,6 +161,7 @@ public:
     int id;
     std::vector<int> Face_edge_list; // contains the edgeid in Edges of a Face
     std::vector<int> Face_vertex_list; // contains the vertex id of a Face, oriented CCW
+    std::vector<int> Face_dart_list; //contains the dart ids which belong to one same face
     
     // a dart incident to this Face:
     int Face_dart_id;
@@ -568,6 +569,10 @@ public:
                 int vb_index = Edges[edge_id].end; // d2.v
                 vertices[va_index].Vertex_dart = d1.id;
                 vertices[vb_index].Vertex_dart = d2.id;
+
+                // add the built darts to this face's Face_dart_list;
+                Faces[fid].Face_dart_list.emplace_back(d1.id);
+                Faces[fid].Face_dart_list.emplace_back(d2.id);
 
             } // end for: each edge
 

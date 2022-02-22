@@ -165,7 +165,20 @@ int main(int argc, char* argv[])
     for (auto& v : vertices) {
         std::cout << "Vertex id: " << v.id << " " << "incident dart: " << v.Vertex_dart << '\n';
     }
+    std::cout << '\n';
 
+    std::cout << "Faces - darts: " << '\n';
+    for (int i = 0; i != Faces.size(); ++i)
+    {
+        std::cout << "face id: " << Faces[i].id << '\n';
+        std::cout << "contains darts: " << '\n';
+        for (auto& d : Faces[i].Face_dart_list)
+        {
+            std::cout << d << " ";
+        }
+        std::cout << '\n';
+        std::cout << '\n';
+    }
     
 
     // ## Construct generalised map using the structures from Gmap.h ##
