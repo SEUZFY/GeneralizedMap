@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
     * to find the vertex in the vertices according to face id or edge id
     */
 
-    ReadOBJ::readobj(DATA_PATH, "/cube.obj", vertices, face_list);
+    ReadOBJ::readobj(DATA_PATH, "/twosquares.obj", vertices, face_list);
     BuildGmapDependency::buildEdgeList(&face_list, &edge_list);
 
     
@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
     BuildGmap::buildDartsAlpha(Darts);
     
     for (auto& d : Darts) {
-        std::cout << "id: "<<d.id << " " <<"a[2]: " << d.a[2] << '\n';
+        std::cout << "id: " << d.id << " " << "a[2]: " << d.a[2] << '\n';
     }
     std::cout << '\n';
 
@@ -165,6 +165,8 @@ int main(int argc, char* argv[])
     for (auto& v : vertices) {
         std::cout << "Vertex id: " << v.id << " " << "incident dart: " << v.Vertex_dart << '\n';
     }
+
+    
 
     // ## Construct generalised map using the structures from Gmap.h ##
 

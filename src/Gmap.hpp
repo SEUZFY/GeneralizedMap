@@ -480,10 +480,52 @@ public:
     {
         int did(0); // once it's assigned to a dart id, did + 1
 
-        for (int fid = 0; fid != Faces.size();++fid) { // for each face
+        for (int fid = 0; fid != Faces.size();++fid) 
+        { // for each face
+
+            // update the start and end of edges of this current face
+            // make it associated with the original CCW orientation
+            // ie, the vertex sequence of this face is: 1 2 3 4, CCW
+            // the edge sequence is: 0 1 2 3, CCW, where edge 0: start = 1, end = 2
+            // but the edge 1: start = 3, end = 2
+            // the start and end of one edge may be dynamically updated until all the faces are traversed
+         
+            // the size of vertex list is the same as the size of edge list of a face
+            // ie: n vertices, n edges
+            // update 1: update the first edge until the last-1 edge(ie update edge 0 1 2)
+            int updateEdgeN = (int)Faces[fid].Face_edge_list.size();
+            for (int i = 0; i != updateEdgeN - 1; ++i)
+            {
+                int Eid = Faces[fid].Face_edge_list[i]; // current edge id in vector Edges
+                int CompareVid= Faces[fid].Face_vertex_list[i]; // the vertex id compared to the start of the edge
+
+                if (Edges[Eid].start == CompareVid)continue;
+                else // if not, swap the start and end of this edge
+                {
+                    int temp = Edges[Eid].start;
+                    Edges[Eid].start = Edges[Eid].end;
+                    Edges[Eid].end = temp;
+                }
+            }
+
+            // update 2: update the last edge
+            // the last vertex: vertices[vsize()-1], the last edge: Edges[esize()-1]
+            int updateVertexN = (int)Faces[fid].Face_vertex_list.size();
+            int lastEid = Faces[fid].Face_edge_list[updateEdgeN - 1]; // the edge id of the last edge of this face(CCW)
+            int lastVid = Faces[fid].Face_vertex_list[updateVertexN - 1]; // the vertex id of the last vertex of this face(CCW)
+
+            if (Edges[lastEid].start != lastVid) // swap the start and end
+            {
+                int temp = Edges[lastEid].start;
+                Edges[lastEid].start = Edges[lastEid].end;
+                Edges[lastEid].end = temp;
+            }
+            // update complete
+
 
             // for each edge of one face:  Faces[fid], build 2 Darts of each face
-            for (int eid = 0; eid != Faces[fid].Face_edge_list.size();++eid) { 
+            for (int eid = 0; eid != Faces[fid].Face_edge_list.size();++eid) 
+            { 
                 
                 // current edge:
                 int edge_id = Faces[fid].Face_edge_list[eid];
