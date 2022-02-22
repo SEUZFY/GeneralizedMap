@@ -45,49 +45,6 @@ Then you could create and link Darts like:
 */
 
 
-//class Dart {
-//private:  
-//    int m_id; // dart id
-//    Dart* involution_pointers[4];  // involutions: a0, a1, a2, a3
-//    std::size_t cell_dimensions[4]; // cells: 0-dimensional, 1-dimensional, 2-dimensional, 3-dimensional
-//
-//public:
-//    Dart(): m_id(0){
-//        for (auto& pDart : involution_pointers)pDart = nullptr;
-//        for (auto c : cell_dimensions)c = 0;
-//    }
-//
-//    // settings
-//    // set dart id
-//    int& id() { return m_id; }
-//
-//    // set involutions
-//    void set_involution_to_dart(int dimension, Dart* dptr) {
-//        involution_pointers[dimension] = dptr; //dptr could be nullptr
-//    }
-//
-//    /*set incident cells :
-//    * cell_dimensions[0]: id of 0-cell (vertex id)
-//    * cell_dimensions[1]: id of 1-cell (edge id)
-//    * cell_dimensions[2]: id of 2-cell (face id)
-//    * cell_dimensions[3]: id of 3-cell (volume id) -- always null(_NULL_)*/
-//    void set_incident_cell(int dimension, std::size_t cell_id) {
-//        if (dimension >= 0 && dimension <= 3) {
-//            cell_dimensions[dimension] = cell_id;
-//        }
-//    }
-//
-//    // helpful for debugging
-//    void print_id()const { std::cout << m_id << '\n'; }
-//    void print_cell(int dimension) { std::cout << cell_dimensions[dimension] << '\n'; }
-//    void print_involution(int dimension) { std::cout << involution_pointers[dimension]->id() << '\n'; }
-//
-//
-//    // cells:
-//    // ...
-//
-//};
-
 class Dart {
 public:
     int id;
@@ -641,8 +598,15 @@ public:
 
 class TriangulateGmap {
 public:
-
-    
+    /*
+    * function: check if current vertex coordinates are repeated in the vertices
+    * 
+    * @parameter:
+    * bx : x coordinate
+    * by : y coordinate
+    * bz : z coordinate
+    * vertices : vector to store all the vertices
+    */  
     static int repeateVertexCheck(
         float bx,
         float by,
@@ -657,6 +621,16 @@ public:
     }
 
     
+    /*
+    * function: triangulate the constructed G-map
+    * 
+    * @parameter:
+    * vertices : vector to store all the vertices
+    * Edges : vector to store all the edges
+    * Faces : vector to store all the faces
+    * Darts : vector to store all the darts
+    * outputFaces : vector to store all the output faces
+    */
     static void triangulateGmap(
         std::vector<Vertex>& vertices,
         std::vector<Edge>& Edges,
