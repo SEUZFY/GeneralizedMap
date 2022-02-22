@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
     * to find the vertex in the vertices according to face id or edge id
     */
 
-    ReadOBJ::readobj(DATA_PATH, "/cube.obj", vertices, face_list);
+    ReadOBJ::readobj(DATA_PATH, "/torus.obj", vertices, face_list);
     BuildGmapDependency::buildEdgeList(&face_list, &edge_list);
 
     
@@ -198,12 +198,6 @@ int main(int argc, char* argv[])
         std::cout << "f" << " " << tri[0] << " " << tri[1] << " " << tri[2] << '\n';
     }
 
-    std::vector<int> tri;
-    tri.emplace_back(5);
-    tri.emplace_back(9);
-    tri.emplace_back(13);
-    TriangulateGmap::maketriangleCCW(tri, vertices);
-    std::cout << tri[0] << " " << tri[1] << " " << tri[2];
 
     // ## Construct generalised map using the structures from Gmap.h ##
 

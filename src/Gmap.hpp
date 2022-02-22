@@ -656,30 +656,6 @@ public:
         return 0; // 0 indicates no repeated vertex
     }
 
-
-    /*
-    * function: make the id sequence triangle[0], triangle[1], triangle[2] CCW
-    * 
-    * @parameter:
-    * triangle: a vector contains 3 integers indicating three vertex ids forming a triangle("dart")
-    */
-    static void maketriangleCCW(
-        std::vector<int>& triangle,
-        std::vector<Vertex>& vertices)
-    {
-       
-        int a1 = triangle[0]; 
-        int a2 = triangle[1]; 
-        int a3 = triangle[2]; 
-
-        Point p1(vertices[a1].x, vertices[a1].y, vertices[a1].z);
-        Point p2(vertices[a2].x, vertices[a2].y, vertices[a2].z);
-        Point p3(vertices[a3].x, vertices[a3].y, vertices[a3].z);
-
-        Point p = p2 - p1;
-        
-    }
-
     
     static void triangulateGmap(
         std::vector<Vertex>& vertices,
@@ -687,15 +663,43 @@ public:
         std::vector<Face>& Faces,
         std::vector<Dart>& Darts,
         std::vector<std::vector<int>>& outputFaces)
-    {
-        // after BuildGmap::buildDarts()
-        // the edges of each face:
-        // edge.start is the same sequence as the vertex sequence
-        
-        
+    {        
         // for each face in Faces:
         for (auto& face : Faces)
         {
+            // for each face
+            // dynamically set the edges of this face associated with its vertex order: CCW
+            // dynamically --> for each face, need to set this at the first
+            int updateEdgeN = (int)face.Face_edge_list.size();
+            for (int i = 0; i != updateEdgeN - 1; ++i)
+            {
+                int Eid = face.Face_edge_list[i]; // current edge id in vector Edges
+                int CompareVid = face.Face_vertex_list[i]; // the vertex id compared to the start of the edge
+
+                if (Edges[Eid].start == CompareVid)continue;
+                else // if not, swap the start and end of this edge
+                {
+                    int temp = Edges[Eid].start;
+                    Edges[Eid].start = Edges[Eid].end;
+                    Edges[Eid].end = temp;
+                }
+            }
+
+            // update 2: update the last edge
+            // the last vertex: vertices[vsize()-1], the last edge: Edges[esize()-1]
+            int updateVertexN = (int)face.Face_vertex_list.size();
+            int lastEid = face.Face_edge_list[updateEdgeN - 1]; // the edge id of the last edge of this face(CCW)
+            int lastVid = face.Face_vertex_list[updateVertexN - 1]; // the vertex id of the last vertex of this face(CCW)
+
+            if (Edges[lastEid].start != lastVid) // swap the start and end
+            {
+                int temp = Edges[lastEid].start;
+                Edges[lastEid].start = Edges[lastEid].end;
+                Edges[lastEid].end = temp;
+            }
+            // update complete for this face
+            
+            
             // ids:
             // barycenter vertex id of each edge
             std::vector<int> barycenterEachEdge;
@@ -793,24 +797,13 @@ public:
                 triangle2.emplace_back(barycenterFace); // different sequence from triangle 1
                 triangle2.emplace_back(beid);
                 triangle2.emplace_back(bvid);
-          
-                // make the sequence CCW if not
-                // maketriangleCCW(triangle2, vertices);
 
                 // add triangle 2 to the output faces
                 outputFaces.emplace_back(triangle2);
 
-            } // end for: each edge
-            
+            } // end for: each edge           
 
         } // end for: each face
-
-
-        // make the vertex sequence in output faces CCW
-        for (auto& tri : outputFaces) // need to use "&", to modify the elements in outputFaces
-        {
-            //maketriangleCCW(tri, vertices);
-        }
 
     }
 };
