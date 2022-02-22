@@ -639,6 +639,183 @@ public:
 };
 
 
+class TriangulateGmap {
+public:
+
+    
+    static int repeateVertexCheck(
+        float bx,
+        float by,
+        float bz,
+        std::vector<Vertex>& vertices)
+    {
+        for (int id = 1; id != vertices.size(); ++id) // id starts from 0
+        {
+            if ((vertices[id].x == bx) && (vertices[id].y == by) && (vertices[id].z == bz))return id;
+        }
+        return 0; // 0 indicates no repeated vertex
+    }
+
+
+    /*
+    * function: make the id sequence triangle[0], triangle[1], triangle[2] CCW
+    * 
+    * @parameter:
+    * triangle: a vector contains 3 integers indicating three vertex ids forming a triangle("dart")
+    */
+    static void maketriangleCCW(
+        std::vector<int>& triangle,
+        std::vector<Vertex>& vertices)
+    {
+       
+        int a1 = triangle[0]; 
+        int a2 = triangle[1]; 
+        int a3 = triangle[2]; 
+
+        Point p1(vertices[a1].x, vertices[a1].y, vertices[a1].z);
+        Point p2(vertices[a2].x, vertices[a2].y, vertices[a2].z);
+        Point p3(vertices[a3].x, vertices[a3].y, vertices[a3].z);
+
+        Point p = p2 - p1;
+        
+    }
+
+    
+    static void triangulateGmap(
+        std::vector<Vertex>& vertices,
+        std::vector<Edge>& Edges,
+        std::vector<Face>& Faces,
+        std::vector<Dart>& Darts,
+        std::vector<std::vector<int>>& outputFaces)
+    {
+        // after BuildGmap::buildDarts()
+        // the edges of each face:
+        // edge.start is the same sequence as the vertex sequence
+        
+        
+        // for each face in Faces:
+        for (auto& face : Faces)
+        {
+            // ids:
+            // barycenter vertex id of each edge
+            std::vector<int> barycenterEachEdge;
+
+            // barycenter vertex id of this face
+            int barycenterFace(0);
+
+            // compute the barycenter of each edge
+            for (auto& eid : face.Face_edge_list) // for each edge, edge ids are stored in Face_edge_list
+            {               
+                int vaid = Edges[eid].start; // vertex a id
+                int vbid = Edges[eid].end; // vertex b id
+
+                float bx = (float)((vertices[vaid].x + vertices[vbid].x) * 0.5); // barycenter coordinates
+                float by = (float)((vertices[vaid].y + vertices[vbid].y) * 0.5);
+                float bz = (float)((vertices[vaid].z + vertices[vbid].z) * 0.5);
+
+                // repeate check:
+                // if the coordinates(bx, by, bz) is the same as an existed vertex
+                // not construct a new vertex
+
+                int repeate_id = repeateVertexCheck(bx, by, bz, vertices);
+                if (repeate_id) // repeate_id != 0 --> find repeated vertex
+                {
+                    barycenterEachEdge.emplace_back(repeate_id);
+                }
+                else { // no repeated vertex found
+
+                    Vertex v(bx, by, bz);
+                    v.id = (int)vertices.size(); // set newly-added vertex's id
+                    // ie current vertices: [0,1,2,3,4,5], the vertex v will be the 6-th vertex
+
+                    barycenterEachEdge.emplace_back(v.id); // ad id to the barycenter Each Edge
+
+                    // after setting the vertex's id, add it into the vertices
+                    vertices.emplace_back(v);
+                } // end else
+                
+            } // end for: each edge
+
+            // compute the barycenter of this face:
+            float accumulate_x(0);
+            float accumulate_y(0);
+            float accumulate_z(0);
+            int bartcenterFace_sum = (int)face.Face_vertex_list.size();
+            for (auto& vid : face.Face_vertex_list)
+            {
+                accumulate_x += vertices[vid].x;
+                accumulate_y += vertices[vid].y;
+                accumulate_z += vertices[vid].z;
+            }
+
+            // the barycenter of a face must be a new vertex
+            float bx_face = accumulate_x / bartcenterFace_sum;
+            float by_face = accumulate_y / bartcenterFace_sum;
+            float bz_face = accumulate_z / bartcenterFace_sum;
+
+            Vertex v_face(bx_face, by_face, bz_face);
+            v_face.id = (int)vertices.size();
+            vertices.emplace_back(v_face);
+
+            barycenterFace = v_face.id;
+
+            // add indexes 
+            // ie: in an OBJ file, f 1 2 3 4 means a face consists of vertex 1, 2, 3, 4
+            // for each edge, edge.start, the barycenter of this edge, the barycenter of this face
+            // form a triangle(3 vertex ids)
+            // n edges match with n edge barycenters, ie the k-th edge corresponds to 
+            // the k-th edge barycenter
+            // need to make the sequence as CCW
+            for (int i = 0; i != face.Face_edge_list.size(); ++i)
+            {
+                // for each edge in each face
+                // one edge matchs with two triangles("darts")
+
+                // triangle 1
+                std::vector<int> triangle1;
+                int eid = face.Face_edge_list[i]; // edge id of the i-th edge in the Face_edge_list
+                int bvid = Edges[eid].start;
+                int beid = barycenterEachEdge[i]; // edge barycenter vertex id of the i-th edge
+
+                triangle1.emplace_back(bvid);
+                triangle1.emplace_back(beid);
+                triangle1.emplace_back(barycenterFace);
+
+                // make the sequence CCW if not
+                // maketriangleCCW(triangle1, vertices);
+
+                // add triangle 1 to the output faces
+                outputFaces.emplace_back(triangle1);
+
+                // triangle 2
+                std::vector<int> triangle2;
+                bvid = Edges[eid].end;
+                triangle2.emplace_back(barycenterFace); // different sequence from triangle 1
+                triangle2.emplace_back(beid);
+                triangle2.emplace_back(bvid);
+          
+                // make the sequence CCW if not
+                // maketriangleCCW(triangle2, vertices);
+
+                // add triangle 2 to the output faces
+                outputFaces.emplace_back(triangle2);
+
+            } // end for: each edge
+            
+
+        } // end for: each face
+
+
+        // make the vertex sequence in output faces CCW
+        for (auto& tri : outputFaces) // need to use "&", to modify the elements in outputFaces
+        {
+            //maketriangleCCW(tri, vertices);
+        }
+
+    }
+};
+
+
 // overload functions:
 
 // print vertices
