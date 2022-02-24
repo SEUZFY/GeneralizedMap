@@ -102,8 +102,13 @@ public:
     {}
 
     void compute_barycenter() {
-        Point point1 = Point(1, 2, 3);
-        barycenter = point1;
+        float x = 0, y = 0, z = 0;
+        for(auto vertex :vertex_coord) {
+            x += vertex.point.x;
+            y+=vertex.point.y;
+            z+=vertex.point.z;
+        }
+        barycenter = Point(x/3,y/3,z/3);
     }
     // a dart incident to this Face:
     // ...
@@ -124,7 +129,6 @@ public:
 class Dart {
 public:
     int dart_id;
-    int belonged_face;
     Dart* a0 = nullptr;
     Dart* a1= nullptr;
     Dart* a2= nullptr;
@@ -149,6 +153,10 @@ public:
 
 class GeneralizedMap{
 public:
+    static void initialize_incident_dart()
+    {
+        
+    }
 
     static std::vector<Edge> create_edges(std::vector<int> &face)
     {
@@ -161,23 +169,23 @@ public:
         return edges;
     }
 
-    static std::vector<Edge> build_single_edges(const std::vector<std::vector<Edge>> edge_list) {
+    static std::vector<Edge> build_single_edges(const std::vector<std::vector<Edge>>& edge_list) {
 
         std::vector<Edge> result_edge;
-        for (int i = 0; i < edge_list.size(); ++i) {
-            for (int j = 0; j < edge_list[i].size(); ++j) {
-                if (result_edge.empty()) result_edge.emplace_back(edge_list[i][j]);
+        for (const auto & i : edge_list) {
+            for (auto j : i) {
+                if (result_edge.empty()) result_edge.emplace_back(j);
                 else
                 {
                     int size=result_edge.size();
                     bool same= true;
                     for (int k = 0; k < size; ++k) {
-                        if (result_edge[k].edge_start==edge_list[i][j].edge_end && result_edge[k].edge_end==edge_list[i][j].edge_start){
+                        if (result_edge[k].edge_start==j.edge_end && result_edge[k].edge_end==j.edge_start){
                             same= false;
                             continue;
                         }
                     }
-                    if(same) result_edge.emplace_back(edge_list[i][j]);
+                    if(same) result_edge.emplace_back(j);
                 }
             }
         }
@@ -208,10 +216,13 @@ public:
     static Dart * find_a2_dart(Dart * current_dart,std::vector<std::vector<Dart *>> darts_list)
     {
         Dart * incident;
-        for(const auto& darts :darts_list){
-            for (auto dart:darts) {
-                if(dart->vertex == current_dart->vertex && dart->edge == current_dart->edge && dart->face != current_dart->face )
-                    incident=dart;
+        for (int i = 0; i < darts_list.size(); ++i) {
+            if (i==current_dart->face->face_id) continue;
+            else {
+                for(auto dart:darts_list[i]) {
+                    if(dart->vertex->vertex_id == current_dart->vertex->vertex_id && dart->edge->edge_id == current_dart->edge->edge_id)
+                    {   incident = dart;}
+                }
             }
         }
         return incident;
@@ -266,8 +277,8 @@ public:
                     darts.emplace_back(dart_1);
                     darts.emplace_back(dart_2);}
                 else {
-                    Dart * dart_1 = new Dart(count, face.vertex_coord[i], face.edge_list[i], face);
-                    Dart * dart_2 = new Dart(count+1, face.vertex_coord[i],face.edge_list[i+1], face);
+                    Dart * dart_1 = new Dart(count, face.vertex_coord[i], face.edge_list[i-1], face);
+                    Dart * dart_2 = new Dart(count+1, face.vertex_coord[i],face.edge_list[i], face);
                     darts.emplace_back(dart_1);
                     darts.emplace_back(dart_2);}
                 count+=2;}
@@ -276,25 +287,87 @@ public:
     }
 
     static std::vector<std::vector<Dart *>> involutions(std::vector<std::vector<Dart *>> & darts_list, std::vector<Face> & faces) {
-        for(auto &darts:darts_list){
+        for (auto &darts: darts_list) {
             for (int i = 0; i < darts.size(); ++i) {
                 // in a single face (because a0 and a1 are in the same face
                 for (int j = 0; j < darts.size(); ++j) {
                     // a0
-                    if ( darts[j]->edge ==  darts[i]->edge && darts[j]->dart_id != darts[i]->dart_id)
-                        darts[i]->a0= darts[j];
+                    if (darts[j]->edge == darts[i]->edge && darts[j]->dart_id != darts[i]->dart_id)
+                        darts[i]->a0 = darts[j];
                     // a1
-                    if(darts[j]->vertex ==  darts[i]->vertex && darts[j]->edge != darts[i]->edge)
-                        darts[i]->a1 = darts[j];}
+                    if (darts[j]->vertex == darts[i]->vertex && darts[j]->edge != darts[i]->edge)
+                        darts[i]->a1 = darts[j];
+                }
             }
         }
-        /*
-        for (const auto& darts :darts_list) {
-            for (auto dart : darts) {
-                dart->a2=find_a2_dart(dart,darts_list);
+        for (const auto &darts: darts_list) {
+
+            for (auto dart: darts) {
+                dart->a2 = find_a2_dart(dart, darts_list);
             }
-        }*/
+        }
         return darts_list;
     }
+};
 
+class Triangulation{
+public:
+    static void dart_triangulation(const std::vector<std::vector<Dart *>>& darts_list) {
+
+    }
+};
+
+class WriteOBJ {
+public:
+    static void output_dart(const std::vector<std::vector<Dart *>>& darts_list, const std::string& file_path) {
+        std::string filename=file_path+"/involution.csv";
+        std::ofstream output_file;
+        output_file.open(filename, std::ios::out | std::ios::trunc);
+        output_file << std::fixed;
+        output_file <<"ID;a0;a1;a2;a3;v;e;f" << std::endl;
+        // print data into the file
+        for(const auto& darts:darts_list)
+            for (auto d : darts) {
+                output_file << d->dart_id<<";"<< d->a0->dart_id<<";"<< d->a1->dart_id<<";"<< d->a2->dart_id<<";" << "-"<<";"<< d->vertex->vertex_id<<";"<< d->edge->edge_id<<";"<< d->face->face_id<<std::endl;
+            }
+        // close file
+        output_file.close();
+    }
+    static void output_vertex(const std::vector<Vertex>& vertices, const std::string& file_path) {
+        std::ofstream output_file;
+        std::string filename=file_path+"/vertices.csv";
+        output_file.open(filename, std::ios::out | std::ios::trunc);
+        output_file << std::fixed;
+        output_file <<"ID;dart;x;y;z" << std::endl;
+        // print data into the file
+        for(const auto& ver:vertices)
+            output_file << ver.vertex_id<<";"<< ver.incident_dart->dart_id<<";"<< ver.point.x<<";"<< ver.point.y<<";" << ver.point.z<<std::endl;
+        // close file
+        output_file.close();
+    }
+    static void output_edge(const std::vector<Vertex>& vertices, const std::string& file_path) {
+        std::ofstream output_file;
+        std::string filename=file_path+"/edges.csv";
+        output_file.open(filename, std::ios::out | std::ios::trunc);
+        output_file << std::fixed;
+        output_file <<"ID;dart;x;y;z" << std::endl;
+        // print data into the file
+        for(const auto& ver:vertices)
+            output_file << ver.vertex_id<<";"<< ver.incident_dart->dart_id<<";"<< ver.point.x<<";"<< ver.point.y<<";" << ver.point.z<<std::endl;
+        // close file
+        output_file.close();
+    }
+
+    static void output_face(const std::vector<Vertex>& vertices, const std::string& file_path) {
+        std::ofstream output_file;
+        std::string filename=file_path+"/faces.csv";
+        output_file.open(filename, std::ios::out | std::ios::trunc);
+        output_file << std::fixed;
+        output_file <<"ID;dart;x;y;z" << std::endl;
+        // print data into the file
+        for(const auto& ver:vertices)
+            output_file << ver.vertex_id<<";"<< ver.incident_dart->dart_id<<";"<< ver.point.x<<";"<< ver.point.y<<";" << ver.point.z<<std::endl;
+        // close file
+        output_file.close();
+    }
 };
