@@ -12,12 +12,9 @@ int main(int argc, const char * argv[]) {
     std::ifstream ifs;
     ifs.open(file_in);
 
-    bool status=ifs.is_open();
-    std::cout<<"the result is "<<status<<std::endl;
-
     std::vector<Vertex> vertices;
     std::vector<Face> faces;
-    std::vector<Edge> edges;
+    std::vector<Edge> ordered_edges;
     std::vector<std::vector<Edge>>edge_list;
     std::vector<std::vector<int>> face_list;
     int vertices_id = 1;
@@ -40,28 +37,51 @@ int main(int argc, const char * argv[]) {
                 while(iss>>word) face.push_back(std::stof(word));
                 if (face.size()==4) {
                     face_list.emplace_back(face);
-                    edges= GeneralizedMap::create_edges(face);
-                    edge_list.emplace_back(edges);
+                    ordered_edges= GeneralizedMap::create_edges(face);
+                    edge_list.emplace_back(ordered_edges);
                 }
                 else face_list.emplace_back(face);
             }
         }
     }
-    std::vector<Edge> result;
-    result=GeneralizedMap::build_single_edges(edge_list);
-    for (int i = 0; i < face_list.size();++i)
-        faces.emplace_back(face_list[i], result, vertices, i);
+    std::vector<Edge> unordered_edges;
+    unordered_edges=GeneralizedMap::build_single_edges(edge_list);
 
-    std::vector<std::vector<Dart *>> darts_list = GeneralizedMap::build_darts(faces);
+    std::cout<<"creating face now"<<std::endl;
+
+    for (int i = 0; i < face_list.size();++i)
+        faces.emplace_back(face_list[i], unordered_edges, vertices, i);
+
+    std::cout<<"building faces completed"<<std::endl;
+    std::cout<<"building darts now"<<std::endl;
+
+    std::vector<std::vector<Dart *>> darts_list = GeneralizedMap::build_darts(faces,unordered_edges,vertices);
     darts_list = GeneralizedMap::involutions(darts_list,faces);
 
-    for(auto darts:darts_list) {
+    std::cout<<"building darts completed"<<std::endl;
+
+    for(const auto& darts:darts_list) {
         for (auto dart:darts) {
-            std::cout<<"the dart "<<dart->dart_id<<" ,vertex is "<<dart->vertex->vertex_id<<", edge is "<<dart->a1->edge->edge_id<<", face is "<<dart->face->face_id<<std::endl;
-            std::cout<<"the dart "<<dart->dart_id<<" ,a0 is "<<dart->a0->dart_id<<", a1 is "<<dart->a1->dart_id<<", a2 is none"<<std::endl;
+            if (dart->a2 == nullptr) {
+                //std::cout<<"the dart "<<dart->dart_id<<" ,vertex is "<<dart->vertex->vertex_id<<", edge is "<<dart->a1->edge->edge_id<<", face is "<<dart->face->face_id<<std::endl;
+                std::cout<<"the dart "<<dart->dart_id<<" ,a0 is "<<dart->a0->dart_id<<", a1 is "<<dart->a1->dart_id<<", a2 is null"<<std::endl;
+            }
+            else
+            {
+                //std::cout << "the dart " << dart->dart_id << " ,vertex is " << dart->vertex->vertex_id << ", edge is "<< dart->a1->edge->edge_id << ", face is " << dart->face->face_id << std::endl;
+                std::cout << "the dart " << dart->dart_id << " ,a0 is " << dart->a0->dart_id << ", a1 is "
+                          << dart->a1->dart_id << ", a2 is " << dart->a2->dart_id << std::endl;
+            }
         }
     }
 
+    //still need to debug
+    std::vector<Vertex> vertex_list;
+    std::vector<Triangulation> triangulation_list;
+    Triangulation::dart_triangulation(darts_list,faces,vertices,vertex_list,triangulation_list);
+    Triangulation::output_obj(vertex_list,triangulation_list,".");
+
+    WriteCSV::output_dart(darts_list,".");
 
     // ## Construct generalised map using the structures from Gmap.h ##
 
