@@ -12,11 +12,12 @@ int main(int argc, const char * argv[]) {
     std::ifstream ifs;
     ifs.open(file_in);
 
-    std::vector<Vertex> vertices;
-    std::vector<Face> faces;
-    std::vector<Edge> ordered_edges;
-    std::vector<std::vector<Edge>>edge_list;
-    std::vector<std::vector<int>> face_list;
+    std::vector<Vertex> vertices; // vector to store all the vertices.
+    std::vector<Face> faces; // vector to store all the faces
+    std::vector<Edge> ordered_edges; // vector to store all the ordered edges (for unordered edges)
+    std::vector<std::vector<Edge>>edge_list; // vector to store all the unordered edges
+    std::vector<std::vector<int>> face_list; // vector to store face information which is read from obj file.
+    std::vector<Volume> volumes; // vector to store volume
     int vertices_id = 1;
     int face_id=1;
     if (ifs.is_open()) {
@@ -25,14 +26,16 @@ int main(int argc, const char * argv[]) {
             std::istringstream iss(line);
             std::string word;
             iss >> word;
-            if (word == "v") {
+            if (word == "v")
+            {
                 std::vector<float> coordinates;
                 while (iss >> word) coordinates.push_back(std::stof(word));
                 if (coordinates.size() == 3) vertices.emplace_back(coordinates[0], coordinates[1], coordinates[2],vertices_id);
                 else vertices.emplace_back();
                 vertices_id++;
             }
-            else if (word == "f") {
+            else if (word == "f")
+            {
                 std::vector<int> face;
                 while(iss>>word) face.push_back(std::stof(word));
                 if (face.size()==4) {
@@ -43,6 +46,7 @@ int main(int argc, const char * argv[]) {
                 else face_list.emplace_back(face);
             }
         }
+        volumes.emplace_back(1);
     }
     std::vector<Edge> unordered_edges;
     unordered_edges=GeneralizedMap::build_single_edges(edge_list);
@@ -73,6 +77,8 @@ int main(int argc, const char * argv[]) {
     WriteCSV::output_edge(unordered_edges,".");
     WriteCSV::output_vertex(vertices,".");
     WriteCSV::output_faces(faces,".");
+    WriteCSV::output_volume(volumes,".");
+
     std::cout<<"output csv file completed"<<std::endl;
     // ## Construct generalised map using the structures from Gmap.h ##
 
