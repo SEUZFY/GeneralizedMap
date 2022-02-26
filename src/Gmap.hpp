@@ -783,6 +783,29 @@ public:
 };
 
 
+class WriteFiles {
+public:
+    /*
+    * function: output darts as csv file
+    */
+    static void writeDarts(std::vector<Dart>& Darts) {
+        std::string filepath = DATA_PATH;
+        std::string file = "/torus_darts.csv";
+        std::string filename = filepath + file;
+
+        std::ofstream myfile;
+        myfile.open(filename);
+        myfile << "ID;a0;a1;a2;a3;v;e;f"  << '\n';
+
+        for (auto& d : Darts)
+        {
+            myfile << d.id << ";" << d.a[0] << ";" << d.a[1] << ";" << d.a[2] << ";"
+                << d.a[3] << ";" << d.v << ";" << d.e << ";" << d.f << '\n';
+        }
+        
+        myfile.close();
+    }
+};
 // overload functions:
 
 // print vertices

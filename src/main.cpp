@@ -199,6 +199,9 @@ int main(int argc, char* argv[])
     }
 
 
+    // Write results
+    WriteFiles::writeDarts(Darts);
+
     // ## Construct generalised map using the structures from Gmap.h ##
 
     // ## Output generalised map to CSV ##
