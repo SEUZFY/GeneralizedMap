@@ -805,7 +805,31 @@ public:
         
         myfile.close();
     }
+
+
+    /*
+    * function: output darts as csv file
+    */
+    static void writeVertices(std::vector<Vertex>& vertices) {
+        std::string filepath = DATA_PATH;
+        std::string file = "/torus_vertices.csv";
+        std::string filename = filepath + file;
+
+        std::ofstream myfile;
+        myfile.open(filename);
+        myfile << "ID;dart;x;y;z" << '\n';
+
+        for (auto& v : vertices)
+        {
+            myfile << v.id << ";" << v.Vertex_dart << ";" << v.x << ";"
+                << v.y << ";" << v.z << ";" << '\n';
+        }
+
+        myfile.close();
+    }
 };
+
+
 // overload functions:
 
 // print vertices

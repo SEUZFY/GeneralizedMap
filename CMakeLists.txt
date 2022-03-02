@@ -10,7 +10,7 @@ add_definitions(
 )
 
 # 将源代码添加到此项目的可执行文件。
-add_executable (GeneralizedMap "src/main.cpp" "src/Point.h")
+add_executable (GeneralizedMap "src/main.cpp" "src/Point.h" "src/testscript.h")
 
 # TODO: 如有需要，请添加测试并安装目标。
 # TODO: 如有需要，请添加测试并安装目标。
