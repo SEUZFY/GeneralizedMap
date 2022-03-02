@@ -788,9 +788,8 @@ public:
     /*
     * function: output darts as csv file
     */
-    static void writeDarts(std::vector<Dart>& Darts) {
+    static void writeDarts(std::vector<Dart>& Darts, const std::string& file) {
         std::string filepath = DATA_PATH;
-        std::string file = "/torus_darts.csv";
         std::string filename = filepath + file;
 
         std::ofstream myfile;
@@ -808,11 +807,10 @@ public:
 
 
     /*
-    * function: output darts as csv file
+    * function: output vertices as csv file
     */
-    static void writeVertices(std::vector<Vertex>& vertices) {
+    static void writeVertices(std::vector<Vertex>& vertices, const std::string& file) {
         std::string filepath = DATA_PATH;
-        std::string file = "/torus_vertices.csv";
         std::string filename = filepath + file;
 
         std::ofstream myfile;
@@ -823,6 +821,26 @@ public:
         {
             myfile << v.id << ";" << v.Vertex_dart << ";" << v.x << ";"
                 << v.y << ";" << v.z << ";" << '\n';
+        }
+
+        myfile.close();
+    }
+
+
+    /*
+    * function: output edges as csv file
+    */
+    static void writeEdges(std::vector<Edge>& Edges, const std::string& file) {
+        std::string filepath = DATA_PATH;
+        std::string filename = filepath + file;
+
+        std::ofstream myfile;
+        myfile.open(filename);
+        myfile << "ID;dart" << '\n';
+
+        for (auto& edge : Edges)
+        {
+            myfile << edge.id << ";" << edge.Edge_dart_id << ";" << '\n';
         }
 
         myfile.close();

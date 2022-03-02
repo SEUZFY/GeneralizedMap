@@ -99,11 +99,15 @@ int main(int argc, char* argv[])
     std::cout << "Write gmap... --------------------------------------------------" << '\n';
 
     std::cout << "Write darts..." << '\n';
-    WriteFiles::writeDarts(Darts);
+    WriteFiles::writeDarts(Darts, "/torus_darts.csv");
     std::cout << "done" << '\n';
 
     std::cout << "Write vertices..." << '\n';
-    WriteFiles::writeVertices(vertices);
+    WriteFiles::writeVertices(vertices, "/torus_vertices.csv");
+    std::cout << "done" << '\n';
+
+    std::cout << "Write edges..." << '\n';
+    WriteFiles::writeEdges(Edges, "/torus_edges.csv");
     std::cout << "done" << '\n';
     
 
@@ -115,9 +119,6 @@ int main(int argc, char* argv[])
     TriangulateGmap::triangulateGmap(vertices, Edges, Faces, Darts, outputFaces);
     std::cout << "End triangulating gmap... --------------------------------------------------" << '\n';
     std::cout << '\n';
-
-        
-    
 
 
     // ## Construct generalised map using the structures from Gmap.h ##
