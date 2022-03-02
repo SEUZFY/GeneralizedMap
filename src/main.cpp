@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
     std::string suffix = ".obj";
     std::string file_name = prefix + file + suffix;
 
-    ReadOBJ::readobj(DATA_PATH, "/torus.obj", vertices, face_list);
+    ReadOBJ::readobj(DATA_PATH, file_name, vertices, face_list);
     std::cout << "End reading... " << '\n';
     std::cout << '\n'; 
 
