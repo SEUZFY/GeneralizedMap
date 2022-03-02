@@ -7,14 +7,28 @@ http://alice.loria.fr/publications/papers/1999/g_maps/g_maps.pdf
 
 https://link-springer-com.tudelft.idm.oclc.org/content/pdf/10.1007%2F3-540-56610-4_57.pdf
 
-Normal vector of face:
+--> Input obj file:
 
-if normal vector points to outside, it would be like:
+<img width="229" alt="gmap6" src="https://user-images.githubusercontent.com/72781910/156465807-94072f93-f96a-47c4-bfd6-366150067ebd.PNG">
 
-![image](https://user-images.githubusercontent.com/72781910/154854866-1170e422-36dc-4677-9b36-bf62fd0f796b.png)
+--> Output triangulated obj file:
 
-if noemal vector points to inside, it would be like；
+<img width="245" alt="gmap5" src="https://user-images.githubusercontent.com/72781910/156465866-9b28c5e5-205d-492b-b1d7-4efb54734c2c.PNG">
 
-![image](https://user-images.githubusercontent.com/72781910/154854881-da2c5ab8-23e7-429e-8a86-f271523dd3ab.png)
+--> Input obj file:
 
-The default order is: CCW(normal vector points to outside)
+<img width="348" alt="gmap7" src="https://user-images.githubusercontent.com/72781910/156465926-44c93934-1742-4a52-9d72-55010a0b121a.PNG">
+
+--> Output triangulated obj file:
+
+<img width="344" alt="gmap8" src="https://user-images.githubusercontent.com/72781910/156465966-1c8a981b-7546-46c0-a16f-bae6cd99ed28.PNG">
+
+Opened in MeshLab: https://www.meshlab.net/
+
+There are two solutions:
+
+Yitong  branch -- from my collaborator Yitong Xia(xiayitong0630@gmail.com)
+
+Fengyan branch -- zmocheng@gmail.com
+
+During the implementation of this algorithm, we sincerely discussed and compared each other's execution results.
