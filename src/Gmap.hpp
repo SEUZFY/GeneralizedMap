@@ -886,6 +886,34 @@ public:
 
         myfile.close();
     }
+
+
+    /*
+    * function: output triangulated obj file
+    */
+    static void writeTriangulated(
+        std::vector<Vertex>& vertices, 
+        std::vector<std::vector<int>>& outputFaces, 
+        const std::string& file) 
+    {
+        std::string filepath = DATA_PATH;
+        std::string filesuffix = "_triangulated.obj";
+        std::string filename = filepath + file + filesuffix;
+
+        std::ofstream myfile;
+        myfile.open(filename);
+
+		for (int i = 1; i < vertices.size(); ++i)
+		{
+            myfile << "v" << " " << vertices[i].x << " " << vertices[i].y << " " << vertices[i].z << '\n';
+		}
+		for (auto& tri : outputFaces)
+		{
+            myfile << "f" << " " << tri[0] << " " << tri[1] << " " << tri[2] << '\n';
+		}
+        
+        myfile.close();
+    }
 };
 
 

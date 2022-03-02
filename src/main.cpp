@@ -145,6 +145,8 @@ int main(int argc, char* argv[])
     WriteFiles::writeVolumes(write_file_name);
     std::cout << "done" << '\n';
 
+    std::cout << "End writing gmap " << '\n';
+
 
     /*
     * Triangulate gmap
@@ -155,6 +157,14 @@ int main(int argc, char* argv[])
     std::cout << "End triangulating gmap " << '\n';
     std::cout << '\n';
 
+
+    /*
+    * Write triangulated obj file
+    */
+    std::cout << "Write triangulated gmap... " << '\n';
+    WriteFiles::writeTriangulated(vertices, outputFaces, write_file_name);
+    std::cout << "End writing triangulated gmap " << '\n';
+    std::cout << '\n';
 
     // ## Construct generalised map using the structures from Gmap.h ##
 
