@@ -48,27 +48,53 @@ int main(int argc, char* argv[])
 
 
     /*
+    * define input files
+    */
+    std::string file;
+
+    // get the input file, default file: /torus.obj
+    if (argc <= 1) {
+        std::cout << "This is: " << argv[0] << '\n';
+        std::cout << '\n';
+        std::cout << "You can call this program with one input file name as a program argument" << '\n';
+        std::cout << "The input file name is like: cube" << '\n';
+        std::cout << "If no input file name provided, the default input file is: torus" << '\n';
+        std::cout << '\n';
+
+        file = "torus";
+    }
+    else {
+        const char* srcfile = argv[1]; // file name of the input dataset
+        file = srcfile;
+    }
+
+
+    /*
     * Read in files
     */
-    std::cout << "Reading... --------------------------------------------------" << '\n';
+    std::cout << "Reading... " << '\n';
+    std::string prefix = "/";
+    std::string suffix = ".obj";
+    std::string file_name = prefix + file + suffix;
+
     ReadOBJ::readobj(DATA_PATH, "/torus.obj", vertices, face_list);
-    std::cout << "End reading... --------------------------------------------------" << '\n';
+    std::cout << "End reading... " << '\n';
     std::cout << '\n'; 
 
 
     /*
     * Build gmap denpendency
     */
-    std::cout << "Building gmap denpendency... --------------------------------------------------" << '\n';
+    std::cout << "Building gmap denpendency... " << '\n';
     BuildGmapDependency::buildEdgeList(&face_list, &edge_list);
-    std::cout << "End building gmap denpendency... --------------------------------------------------" << '\n';
+    std::cout << "End building gmap denpendency " << '\n';
     std::cout << '\n';
 
 
     /*
     * Build gmap
     */
-    std::cout << "Building gmap... --------------------------------------------------" << '\n';
+    std::cout << "Building gmap... " << '\n';
 
     std::cout << "Building Edges..." << '\n';
     std::vector<Edge> Edges;
@@ -89,35 +115,39 @@ int main(int argc, char* argv[])
     BuildGmap::buildDartsAlpha(Darts);
     std::cout << "done" << '\n';
 
-    std::cout << "End building gmap... --------------------------------------------------" << '\n';
+    std::cout << "End building gmap " << '\n';
     std::cout << '\n';
 
 
     /*
     * Write files
     */
-    std::cout << "Write gmap... --------------------------------------------------" << '\n';
+    std::cout << "Write gmap... " << '\n';
+    std::string write_file_name = prefix + file;
 
     std::cout << "Write darts..." << '\n';
-    WriteFiles::writeDarts(Darts, "/torus_darts.csv");
+    WriteFiles::writeDarts(Darts, write_file_name);
     std::cout << "done" << '\n';
 
     std::cout << "Write vertices..." << '\n';
-    WriteFiles::writeVertices(vertices, "/torus_vertices.csv");
+    WriteFiles::writeVertices(vertices, write_file_name);
     std::cout << "done" << '\n';
 
     std::cout << "Write edges..." << '\n';
-    WriteFiles::writeEdges(Edges, "/torus_edges.csv");
+    WriteFiles::writeEdges(Edges, write_file_name);
     std::cout << "done" << '\n';
     
+    std::cout << "Write faces..." << '\n';
+    WriteFiles::writeFaces(Faces, write_file_name);
+    std::cout << "done" << '\n';
 
     /*
     * Triangulate gmap
     */
-    std::cout << "Triangulate gmap... --------------------------------------------------" << '\n';
+    std::cout << "Triangulate gmap... " << '\n';
     std::vector<std::vector<int>> outputFaces;   
     TriangulateGmap::triangulateGmap(vertices, Edges, Faces, Darts, outputFaces);
-    std::cout << "End triangulating gmap... --------------------------------------------------" << '\n';
+    std::cout << "End triangulating gmap " << '\n';
     std::cout << '\n';
 
 

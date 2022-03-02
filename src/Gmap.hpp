@@ -790,7 +790,8 @@ public:
     */
     static void writeDarts(std::vector<Dart>& Darts, const std::string& file) {
         std::string filepath = DATA_PATH;
-        std::string filename = filepath + file;
+        std::string filesuffix = "_darts.csv";
+        std::string filename = filepath + file + filesuffix;
 
         std::ofstream myfile;
         myfile.open(filename);
@@ -811,7 +812,8 @@ public:
     */
     static void writeVertices(std::vector<Vertex>& vertices, const std::string& file) {
         std::string filepath = DATA_PATH;
-        std::string filename = filepath + file;
+        std::string filesuffix = "_vertices.csv";
+        std::string filename = filepath + file + filesuffix;
 
         std::ofstream myfile;
         myfile.open(filename);
@@ -820,7 +822,7 @@ public:
         for (auto& v : vertices)
         {
             myfile << v.id << ";" << v.Vertex_dart << ";" << v.x << ";"
-                << v.y << ";" << v.z << ";" << '\n';
+                << v.y << ";" << v.z << '\n';
         }
 
         myfile.close();
@@ -832,7 +834,8 @@ public:
     */
     static void writeEdges(std::vector<Edge>& Edges, const std::string& file) {
         std::string filepath = DATA_PATH;
-        std::string filename = filepath + file;
+        std::string filesuffix = "_edges.csv";
+        std::string filename = filepath + file + filesuffix;
 
         std::ofstream myfile;
         myfile.open(filename);
@@ -840,7 +843,28 @@ public:
 
         for (auto& edge : Edges)
         {
-            myfile << edge.id << ";" << edge.Edge_dart_id << ";" << '\n';
+            myfile << edge.id << ";" << edge.Edge_dart_id << '\n';
+        }
+
+        myfile.close();
+    }
+
+
+    /*
+    * function: output faces as csv file
+    */
+    static void writeFaces(std::vector<Face>& Faces, const std::string& file) {
+        std::string filepath = DATA_PATH;
+        std::string filesuffix = "_faces.csv";
+        std::string filename = filepath + file + filesuffix;
+
+        std::ofstream myfile;
+        myfile.open(filename);
+        myfile << "ID;dart" << '\n';
+
+        for (auto& face : Faces)
+        {
+            myfile << face.id << ";" << face.Face_dart_id << '\n';
         }
 
         myfile.close();
