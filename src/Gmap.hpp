@@ -869,6 +869,23 @@ public:
 
         myfile.close();
     }
+
+
+    /*
+    * function: output volumes as csv file
+    * empty file in this case
+    */
+    static void writeVolumes(const std::string& file) {
+        std::string filepath = DATA_PATH;
+        std::string filesuffix = "_volumes.csv";
+        std::string filename = filepath + file + filesuffix;
+
+        std::ofstream myfile;
+        myfile.open(filename);
+        myfile << "ID;dart" << '\n';
+
+        myfile.close();
+    }
 };
 
 

@@ -141,6 +141,11 @@ int main(int argc, char* argv[])
     WriteFiles::writeFaces(Faces, write_file_name);
     std::cout << "done" << '\n';
 
+    std::cout << "Write volumes..." << '\n';
+    WriteFiles::writeVolumes(write_file_name);
+    std::cout << "done" << '\n';
+
+
     /*
     * Triangulate gmap
     */
